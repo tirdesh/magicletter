@@ -1,46 +1,33 @@
-// SignInForm.tsx
-import React, { useState } from 'react';
-import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth } from '../../firebase';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import EmailPasswordForm from './EmailPasswordForm';
+import SocialAuthButtons from './SocialAuthButtons';
+import { Button } from "@/components/ui/button";
 
 const SignUpForm: React.FC = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleSignUp = async () => {
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      navigate('/app/dashboard'); // Redirect to dashboard after sign-in
-    } catch (error) {
-      console.error('Error signing in:', error);
-    }
-  };
-
-  const handleGoogleSignUp = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-      await signInWithPopup(auth, provider);
-      // Handle successful sign-in
-    } catch (error) {
-      // Handle errors
-      console.error('Error signing in with Google:', error);
-    }
-  };
-  
   const navigateToSignIn = () => {
-    navigate('/signin'); // Redirect to the SignInForm component
+    navigate('/signin');
   };
-  
+
   return (
-    <div>
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-      <button onClick={handleSignUp}>Sign Up</button>
-      <button onClick={handleGoogleSignUp}>Sign up with Google</button>
-      <button onClick={navigateToSignIn}>Sign In Instead</button>
-    </div>
+    <Card className="w-[350px] mx-auto my-8 shadow-lg rounded-lg">
+      <CardHeader className="text-center">
+        <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
+        <CardDescription className="text-sm text-gray-500">Create a new account</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <EmailPasswordForm isSignUp />
+      </CardContent>
+      <CardFooter className="flex flex-col items-center">
+        <SocialAuthButtons />
+        <Button variant="link" className="mt-2 text-blue-500" onClick={navigateToSignIn}>
+          Already have an account? Sign In
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
