@@ -19,7 +19,7 @@ const SignUpForm: React.FC = () => {
         <CardDescription className="text-sm text-gray-500">Create a new account</CardDescription>
       </CardHeader>
       <CardContent>
-        <EmailPasswordForm isSignUp />
+      <EmailPasswordForm isSignUp={true} />
       </CardContent>
       <CardFooter className="flex flex-col items-center">
         <SocialAuthButtons />

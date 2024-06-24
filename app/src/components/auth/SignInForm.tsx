@@ -19,7 +19,7 @@ const SignInForm: React.FC = () => {
         <CardDescription className="text-sm text-gray-500">Enter your credentials to access your account</CardDescription>
       </CardHeader>
       <CardContent>
-        <EmailPasswordForm />
+      <EmailPasswordForm isSignUp={false} />
       </CardContent>
       <CardFooter className="flex flex-col items-center">
         <SocialAuthButtons />
