@@ -4,14 +4,14 @@ import App from './App.tsx'
 import './index.css'
 import { Provider } from 'react-redux';
 import store from './redux/store';
-import { RHFValidationProvider } from '@/providers/RHFValidationProvider';
+import { ValidationProvider } from './context/validationContext';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={store}>
-      <RHFValidationProvider onSubmit={(data) => console.log(data)}>
+      <ValidationProvider>
         <App />
-      </RHFValidationProvider>
+      </ValidationProvider>
     </Provider>
   </React.StrictMode>,
 )
