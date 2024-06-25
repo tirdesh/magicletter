@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import Dashboard from '../pages/Dashboard';
+import ResumeDashboard from '@/pages/ResumeDashboard';
 
 const ProtectedRoutes: React.FC = () => {
   const [user, setUser] = useState(auth.currentUser);
@@ -32,6 +33,7 @@ const ProtectedRoutes: React.FC = () => {
       <Route path="/" element={<Navigate to="/dashboard" />} />
       <Route path="*" element={<Navigate to="/" />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/resumes" element={<ResumeDashboard />} />
     </Routes>
   );
 };
