@@ -1,5 +1,5 @@
 // src/firebaseFunctions.ts
-import { collection, setDoc, getDocs, deleteDoc, doc, where, query } from "firebase/firestore";
+import { collection, setDoc, getDocs, deleteDoc, doc, where, query, serverTimestamp } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { auth, db, storage } from "../firebase";
 
@@ -7,8 +7,8 @@ interface Resume {
     id: string;
     label: string;
     url: string;
+    fileName: string;
 }
-
 export const addResume = async (file: File, label: string): Promise<string> => {
     try {
         const user = auth.currentUser;
@@ -30,7 +30,9 @@ export const addResume = async (file: File, label: string): Promise<string> => {
             userId: user.uid, 
             label, 
             url,
-            createdAt: new Date()
+            fileName: file.name,
+            fileType: file.type,
+            createdAt: serverTimestamp()
         });
         
         console.log("Resume added successfully with ID:", docId);
@@ -51,7 +53,8 @@ export const getResumes = async (): Promise<Resume[]> => {
     return querySnapshot.docs.map(doc => ({
         id: doc.id,
         label: doc.data().label as string,
-        url: doc.data().url as string
+        url: doc.data().url as string,
+        fileName: doc.data().fileName as string
     }));
 };
 

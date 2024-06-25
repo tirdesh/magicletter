@@ -3,6 +3,7 @@ import { Route, Routes, Navigate } from 'react-router-dom';
 import { auth } from '../firebase';
 import Dashboard from '../pages/Dashboard';
 import ResumeDashboard from '@/pages/ResumeDashboard';
+import ResumeViewPage from '@/pages/ResumeViewPage';
 
 const ProtectedRoutes: React.FC = () => {
   const [user, setUser] = useState(auth.currentUser);
@@ -34,6 +35,8 @@ const ProtectedRoutes: React.FC = () => {
       <Route path="*" element={<Navigate to="/" />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/resumes" element={<ResumeDashboard />} />
+      <Route path="/resume/:id" element={<ResumeViewPage />} />
+
     </Routes>
   );
 };
