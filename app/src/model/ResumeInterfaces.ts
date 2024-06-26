@@ -1,4 +1,9 @@
 // src/model/ResumeInterfaces.ts
+export interface Resume {
+  id: string;
+  label: string;
+  url: string;
+}
 export interface ResumeSection {
   title: string;
   content: string[];

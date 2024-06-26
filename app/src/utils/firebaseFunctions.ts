@@ -1,13 +1,15 @@
 // src/firebaseFunctions.ts
-import { collection, setDoc, getDocs, deleteDoc, doc, where, query, serverTimestamp } from "firebase/firestore";
+import { collection, setDoc, getDocs, deleteDoc, doc, where, query, serverTimestamp, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
 import { auth, db, storage } from "../firebase";
+import { getResumeText } from "./resumeUtils/resumeText";
 
 interface Resume {
     id: string;
     label: string;
     url: string;
     fileName: string;
+    resumeText: string;
 }
 export const addResume = async (file: File, label: string): Promise<string> => {
     try {
@@ -24,7 +26,7 @@ export const addResume = async (file: File, label: string): Promise<string> => {
         
         // Get download URL
         const url = await getDownloadURL(storageRef);
-        
+
         // Add document to Firestore
         await setDoc(docRef, { 
             userId: user.uid, 
@@ -34,7 +36,11 @@ export const addResume = async (file: File, label: string): Promise<string> => {
             fileType: file.type,
             createdAt: serverTimestamp()
         });
-        
+
+        // Get resume text
+        const resumeText = await getResumeText(docId);
+        await updateDoc(docRef, { resumeText });
+
         console.log("Resume added successfully with ID:", docId);
         return docId;
     } catch (error) {
@@ -54,7 +60,8 @@ export const getResumes = async (): Promise<Resume[]> => {
         id: doc.id,
         label: doc.data().label as string,
         url: doc.data().url as string,
-        fileName: doc.data().fileName as string
+        fileName: doc.data().fileName as string,
+        resumeText: doc.data().resumeText as string
     }));
 };
 
