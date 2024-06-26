@@ -1,6 +1,6 @@
 // In src/utils/firebaseFunctions.ts
 
-import { db } from '../firebase'; // Adjust the import path as needed
+import { db } from '../../firebase'; // Adjust the import path as needed
 import * as pdfjs from 'pdfjs-dist';
 import mammoth from 'mammoth';
 import { doc, getDoc } from 'firebase/firestore';

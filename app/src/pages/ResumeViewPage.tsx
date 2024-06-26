@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Copy } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
-import { getResumeText } from '../utils/resumeText';
-import parseResume from '@/utils/resumeParser';
+import { getResumeText } from '../utils/resumeUtils/resumeText';
+import parseResume from '@/utils/resumeUtils/resumeParser';
 import { ParsedResume } from '@/model';
 
 const ResumeViewPage: React.FC = () => {
@@ -24,7 +24,7 @@ const ResumeViewPage: React.FC = () => {
           console.log('Fetching resume text for ID:', id);
           const text = await getResumeText(id);
           setResumeText(text);
-          const parsed = await parseResume(text, "traditional");
+          const parsed = await parseResume(text, "ai", "openai");
           console.log('Parsed resume:', parsed);
           setParsedResume(parsed);
         } catch (error) {
