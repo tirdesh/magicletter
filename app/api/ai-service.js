@@ -1,30 +1,60 @@
-import * as aiProviders from "./providers";
+import axios from "axios";
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+const openAIProvider = {
+  apiUrl: "https://api.openai.com/v1/chat/completions",
 
-  const { provider, prompt, text } = req.body;
-  const providerKey = `${provider}Provider`;
+  formatRequest: (prompt, text) => ({
+    model: "gpt-3.5-turbo",
+    messages: [
+      { role: "system", content: prompt },
+      { role: "user", content: text },
+    ],
+  }),
 
-  if (!aiProviders[providerKey]) {
-    return res.status(400).json({ error: "Unsupported AI provider" });
-  }
+  extractResponse: (response) => response.data.choices[0].message.content,
 
-  const config = aiProviders[providerKey];
-  // eslint-disable-next-line no-undef
-  const apiKey = process.env[`${provider.toUpperCase()}_API_KEY`];
+  async processRequest(prompt, text, apiKey) {
+    const client = axios.create({
+      baseURL: this.apiUrl,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-  if (!apiKey) {
-    return res.status(500).json({ error: "API key not configured" });
-  }
+    const requestData = this.formatRequest(prompt, text);
+    const response = await client.post("", requestData);
+    return this.extractResponse(response);
+  },
+};
 
-  try {
-    const result = await config.processRequest(prompt, text, apiKey);
-    res.status(200).json({ result });
-  } catch (error) {
-    console.error(`Error processing text with ${provider}:`, error);
-    res.status(500).json({ error: "Error processing request" });
-  }
-}
+const claudeProvider = {
+  apiUrl: "https://api.anthropic.com/v1/complete",
+
+  formatRequest: (prompt, text) => ({
+    prompt: `${prompt}\n\nHuman: ${text}\n\nAssistant:`,
+    model: "claude-v1",
+    max_tokens_to_sample: 1000,
+  }),
+
+  extractResponse: (response) => response.data.completion,
+
+  async processRequest(prompt, text, apiKey) {
+    const client = axios.create({
+      baseURL: this.apiUrl,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const requestData = this.formatRequest(prompt, text);
+    const response = await client.post("", requestData);
+    return this.extractResponse(response);
+  },
+};
+
+export const aiProviders = {
+  openai: openAIProvider,
+  claude: claudeProvider,
+};
