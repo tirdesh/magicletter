@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
-import { auth } from '../firebase';
-import Dashboard from '../pages/Dashboard';
-import ResumeDashboard from '@/pages/ResumeDashboard';
-import ResumeViewPage from '@/pages/ResumeViewPage';
+import ResumeDashboard from "@/pages/ResumeDashboard";
+import ResumeViewPage from "@/pages/ResumeViewPage";
+import React, { useEffect, useState } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { auth } from "../firebase";
+import Dashboard from "../pages/Dashboard";
 
 const ProtectedRoutes: React.FC = () => {
   const [user, setUser] = useState(auth.currentUser);
@@ -36,7 +36,6 @@ const ProtectedRoutes: React.FC = () => {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/resumes" element={<ResumeDashboard />} />
       <Route path="/resume/:id" element={<ResumeViewPage />} />
-
     </Routes>
   );
 };

@@ -24,5 +24,4 @@ DS_Store
 *.sln
 *.sw?
 
-firebaseConfig.ts
 .vercel

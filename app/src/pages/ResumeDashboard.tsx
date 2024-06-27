@@ -1,16 +1,33 @@
-import React, { useEffect, useState } from "react";
-import { addResume, getResumes, deleteResume } from "../utils/firebaseFunctions";
-import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { toast } from "@/components/ui/use-toast";
-import { FileIcon, Trash2, Eye, AlertTriangle, Search } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import ResumeUpload, { ResumeFormValues } from "@/components/ResumeUpload";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { toast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Resume } from "@/model";
+import { motion } from "framer-motion";
+import { AlertTriangle, Eye, FileIcon, Search, Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  addResume,
+  deleteResume,
+  getResumes,
+} from "../utils/firebaseFunctions";
 
 const ResumeDashboard: React.FC = () => {
   const { currentUser } = useAuth();
@@ -32,12 +49,18 @@ const ResumeDashboard: React.FC = () => {
     try {
       await addResume(values.file, values.label);
       await refreshResumes();
-      
+
       toast({ title: "Success", description: "Resume added successfully" });
     } catch (error) {
       console.error("Error adding resume:", error);
-      setError("Failed to add resume. Please check your connection and try again.");
-      toast({ title: "Error", description: "Failed to add resume", variant: "destructive" });
+      setError(
+        "Failed to add resume. Please check your connection and try again."
+      );
+      toast({
+        title: "Error",
+        description: "Failed to add resume",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -52,8 +75,14 @@ const ResumeDashboard: React.FC = () => {
       toast({ title: "Success", description: "Resume deleted successfully" });
     } catch (error) {
       console.error("Error deleting resume:", error);
-      setError("Failed to delete resume. Please check your connection and try again.");
-      toast({ title: "Error", description: "Failed to delete resume", variant: "destructive" });
+      setError(
+        "Failed to delete resume. Please check your connection and try again."
+      );
+      toast({
+        title: "Error",
+        description: "Failed to delete resume",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -68,8 +97,14 @@ const ResumeDashboard: React.FC = () => {
       setResumes(fetchedResumes);
     } catch (error) {
       console.error("Error fetching resumes:", error);
-      setError("Failed to fetch resumes. Please check your connection and try again.");
-      toast({ title: "Error", description: "Failed to fetch resumes", variant: "destructive" });
+      setError(
+        "Failed to fetch resumes. Please check your connection and try again."
+      );
+      toast({
+        title: "Error",
+        description: "Failed to fetch resumes",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +123,9 @@ const ResumeDashboard: React.FC = () => {
       >
         <Card className="w-full max-w-4xl mx-auto shadow-md">
           <CardHeader className="bg-primary/10 dark:bg-primary/20">
-            <CardTitle className="text-2xl font-bold text-primary">Resume Dashboard</CardTitle>
+            <CardTitle className="text-2xl font-bold text-primary">
+              Resume Dashboard
+            </CardTitle>
             <CardDescription>Manage your resumes efficiently</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6 p-6">
@@ -115,7 +152,10 @@ const ResumeDashboard: React.FC = () => {
                   placeholder="Search Resumes"
                   className="w-full pl-10"
                 />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
+                <Search
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+                  size={18}
+                />
               </div>
               {filteredResumes.length > 0 ? (
                 <div className="overflow-x-auto bg-card rounded-lg shadow-sm">
@@ -129,21 +169,37 @@ const ResumeDashboard: React.FC = () => {
                     <TableBody>
                       {filteredResumes.map((resume) => (
                         <TableRow key={resume.id}>
-                          <TableCell className="font-medium">{resume.label}</TableCell>
+                          <TableCell className="font-medium">
+                            {resume.label}
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-2">
-                              <Button variant="outline" size="sm" onClick={() => window.open(resume.url, "_blank")}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  window.open(resume.url, "_blank")
+                                }
+                              >
                                 <Eye className="h-4 w-4" />
                                 <span className="sr-only">Preview</span>
                               </Button>
-                              <Button variant="outline" size="sm" onClick={() => {
-                                const targetUrl = `/app/resume/${resume.id}`;
-                                navigate(targetUrl);
-                              }}>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  const targetUrl = `/app/resume/${resume.id}`;
+                                  navigate(targetUrl);
+                                }}
+                              >
                                 <FileIcon className="h-4 w-4" />
                                 <span className="sr-only">View Text</span>
                               </Button>
-                              <Button variant="destructive" size="sm" onClick={() => handleDeleteResume(resume.id)}>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleDeleteResume(resume.id)}
+                              >
                                 <Trash2 className="h-4 w-4" />
                                 <span className="sr-only">Delete</span>
                               </Button>
@@ -155,7 +211,9 @@ const ResumeDashboard: React.FC = () => {
                   </Table>
                 </div>
               ) : (
-                <p className="text-center text-muted-foreground py-8">No resumes found.</p>
+                <p className="text-center text-muted-foreground py-8">
+                  No resumes found.
+                </p>
               )}
             </div>
           </CardContent>

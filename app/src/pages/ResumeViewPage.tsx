@@ -1,18 +1,18 @@
 // src/pages/ResumeViewPage.tsx
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Copy } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
-import { getResumeText } from '../utils/resumeUtils/resumeText';
-import parseResume from '@/utils/resumeUtils/resumeParser';
-import { ParsedResume } from '@/model';
+import { ParsedResume } from "@/model";
+import parseResume from "@/utils/resumeUtils/resumeParser";
+import { ArrowLeft, Copy, Download } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getResumeText } from "../utils/resumeUtils/resumeText";
 
 const ResumeViewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [resumeText, setResumeText] = useState<string>('');
+  const [resumeText, setResumeText] = useState<string>("");
   const [parsedResume, setParsedResume] = useState<ParsedResume | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
@@ -21,14 +21,14 @@ const ResumeViewPage: React.FC = () => {
     const fetchResumeText = async () => {
       if (id) {
         try {
-          console.log('Fetching resume text for ID:', id);
+          console.log("Fetching resume text for ID:", id);
           const text = await getResumeText(id);
           setResumeText(text);
           const parsed = await parseResume(text, "ai", "openai");
-          console.log('Parsed resume:', parsed);
+          console.log("Parsed resume:", parsed);
           setParsedResume(parsed);
         } catch (error) {
-          console.error('Error fetching or parsing resume:', error);
+          console.error("Error fetching or parsing resume:", error);
           toast({
             title: "Error",
             description: "Failed to load or parse resume.",
@@ -53,7 +53,7 @@ const ResumeViewPage: React.FC = () => {
 
   const handleDownload = () => {
     const element = document.createElement("a");
-    const file = new Blob([resumeText], {type: 'text/plain'});
+    const file = new Blob([resumeText], { type: "text/plain" });
     element.href = URL.createObjectURL(file);
     element.download = "resume.txt";
     document.body.appendChild(element);
@@ -93,12 +93,23 @@ const ResumeViewPage: React.FC = () => {
           ) : parsedResume ? (
             <div className="space-y-6">
               <section>
-                <h2 className="text-xl font-semibold mb-2">Personal Information</h2>
+                <h2 className="text-xl font-semibold mb-2">
+                  Personal Information
+                </h2>
                 <div className="grid grid-cols-2 gap-2">
-                  <p><strong>Name:</strong> {parsedResume.personalInfo.name}</p>
-                  <p><strong>Email:</strong> {parsedResume.personalInfo.email}</p>
-                  <p><strong>Phone:</strong> {parsedResume.personalInfo.phone}</p>
-                  <p><strong>Location:</strong> {parsedResume.personalInfo.location}</p>
+                  <p>
+                    <strong>Name:</strong> {parsedResume.personalInfo.name}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {parsedResume.personalInfo.email}
+                  </p>
+                  <p>
+                    <strong>Phone:</strong> {parsedResume.personalInfo.phone}
+                  </p>
+                  <p>
+                    <strong>Location:</strong>{" "}
+                    {parsedResume.personalInfo.location}
+                  </p>
                 </div>
               </section>
 
@@ -114,7 +125,9 @@ const ResumeViewPage: React.FC = () => {
                 {parsedResume.experience.map((exp, index) => (
                   <div key={index} className="mb-4">
                     <h3 className="text-lg font-medium">{exp.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{exp.company} | {exp.date}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {exp.company} | {exp.date}
+                    </p>
                     <ul className="list-disc list-inside mt-2">
                       {exp.content.map((item, i) => (
                         <li key={i}>{item}</li>
@@ -129,7 +142,9 @@ const ResumeViewPage: React.FC = () => {
                 {parsedResume.education.map((edu, index) => (
                   <div key={index} className="mb-4">
                     <h3 className="text-lg font-medium">{edu.title}</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{edu.institution} | {edu.date}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {edu.institution} | {edu.date}
+                    </p>
                     <ul className="list-disc list-inside mt-2">
                       {edu.content.map((item, i) => (
                         <li key={i}>{item}</li>
@@ -143,7 +158,10 @@ const ResumeViewPage: React.FC = () => {
                 <h2 className="text-xl font-semibold mb-2">Skills</h2>
                 <div className="flex flex-wrap gap-2">
                   {parsedResume.skills.map((skill, index) => (
-                    <span key={index} className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full text-sm">
+                    <span
+                      key={index}
+                      className="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-full text-sm"
+                    >
                       {skill}
                     </span>
                   ))}
@@ -156,11 +174,14 @@ const ResumeViewPage: React.FC = () => {
                   {parsedResume.projects.map((project, index) => (
                     <div key={index} className="mb-4">
                       <h3 className="text-lg font-medium">{project.title}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{project.date}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {project.date}
+                      </p>
                       <p className="mt-2">{project.description}</p>
                       {project.technologies && (
                         <div className="mt-2">
-                          <strong>Technologies:</strong> {project.technologies.join(', ')}
+                          <strong>Technologies:</strong>{" "}
+                          {project.technologies.join(", ")}
                         </div>
                       )}
                     </div>
@@ -168,16 +189,19 @@ const ResumeViewPage: React.FC = () => {
                 </section>
               )}
 
-              {parsedResume.certifications && parsedResume.certifications.length > 0 && (
-                <section>
-                  <h2 className="text-xl font-semibold mb-2">Certifications</h2>
-                  <ul className="list-disc list-inside">
-                    {parsedResume.certifications.map((cert, index) => (
-                      <li key={index}>{cert}</li>
-                    ))}
-                  </ul>
-                </section>
-              )}
+              {parsedResume.certifications &&
+                parsedResume.certifications.length > 0 && (
+                  <section>
+                    <h2 className="text-xl font-semibold mb-2">
+                      Certifications
+                    </h2>
+                    <ul className="list-disc list-inside">
+                      {parsedResume.certifications.map((cert, index) => (
+                        <li key={index}>{cert}</li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
 
               {parsedResume.languages && parsedResume.languages.length > 0 && (
                 <section>

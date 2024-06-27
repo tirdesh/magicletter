@@ -1,13 +1,6 @@
 // src/components/ResumeUpload.tsx
 
-import React, { useRef } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Upload, Loader2, FileIcon } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -16,39 +9,42 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { FileIcon, Loader2, Upload } from "lucide-react";
+import React, { useRef } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { resumeFormSchema } from "./resumeFormSchema";
 
-export const resumeFormSchema = z.object({
-    file: z.any(),
-    label: z.string().min(2, "Label must be at least 2 characters"),
+export type ResumeFormValues = z.infer<typeof resumeFormSchema>;
+
+interface ResumeUploadProps {
+  onSubmit: (values: ResumeFormValues) => Promise<void>;
+  isLoading: boolean;
+}
+
+const ResumeUpload: React.FC<ResumeUploadProps> = ({ onSubmit, isLoading }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const form = useForm<ResumeFormValues>({
+    resolver: zodResolver(resumeFormSchema),
+    defaultValues: {
+      file: undefined,
+      label: "",
+    },
   });
-  
-  export type ResumeFormValues = z.infer<typeof resumeFormSchema>;
-  
-  interface ResumeUploadProps {
-    onSubmit: (values: ResumeFormValues) => Promise<void>;
-    isLoading: boolean;
-  }
-  
-  const ResumeUpload: React.FC<ResumeUploadProps> = ({ onSubmit, isLoading }) => {
-    const fileInputRef = useRef<HTMLInputElement>(null);
-  
-    const form = useForm<ResumeFormValues>({
-      resolver: zodResolver(resumeFormSchema),
-      defaultValues: {
-        file: undefined,
-        label: "",
-      },
-    });
-  
-    const handleSubmit = async (values: ResumeFormValues) => {
-      if (values.file instanceof File) {
-        await onSubmit(values);
-        form.reset();
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
+
+  const handleSubmit = async (values: ResumeFormValues) => {
+    if (values.file instanceof File) {
+      await onSubmit(values);
+      form.reset();
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
-    };
+    }
+  };
 
   return (
     <Form {...form}>
@@ -59,7 +55,9 @@ export const resumeFormSchema = z.object({
             name="file"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-lg font-semibold">Upload Resume</FormLabel>
+                <FormLabel className="text-lg font-semibold">
+                  Upload Resume
+                </FormLabel>
                 <FormControl>
                   <div className="flex flex-wrap items-center gap-4">
                     <div className="flex-shrink-0">
@@ -86,7 +84,9 @@ export const resumeFormSchema = z.object({
                       </Label>
                     </div>
                     <span className="text-sm text-muted-foreground truncate max-w-[200px]">
-                      {field.value ? (field.value as File).name : "No file chosen"}
+                      {field.value
+                        ? (field.value as File).name
+                        : "No file chosen"}
                     </span>
                   </div>
                 </FormControl>
@@ -101,15 +101,27 @@ export const resumeFormSchema = z.object({
               <FormItem className="mt-4">
                 <FormLabel className="text-lg font-semibold">Label</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter a label for your resume" className="w-full" />
+                  <Input
+                    {...field}
+                    placeholder="Enter a label for your resume"
+                    className="w-full"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
           <div className="flex justify-start mt-6">
-            <Button type="submit" disabled={isLoading} className="transition-all duration-200">
-              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileIcon className="mr-2 h-4 w-4" />}
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="transition-all duration-200"
+            >
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <FileIcon className="mr-2 h-4 w-4" />
+              )}
               Add Resume
             </Button>
           </div>

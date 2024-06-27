@@ -1,9 +1,14 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import PublicRoutes from './routes/PublicRoutes';
-import ProtectedRoutes from './routes/ProtectedRoutes';
-import { ThemeProvider } from './providers/ThemeProvider';
-import { Layout } from './components/Layout/Layout';
+import React from "react";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
+import { Layout } from "./components/Layout/Layout";
+import { ThemeProvider } from "./providers/ThemeProvider";
+import ProtectedRoutes from "./routes/ProtectedRoutes";
+import PublicRoutes from "./routes/PublicRoutes";
 
 const App: React.FC = () => {
   return (
@@ -20,4 +25,4 @@ const App: React.FC = () => {
     </ThemeProvider>
   );
 };
-export default App
+export default App;

@@ -1,7 +1,7 @@
 // redux/store.ts
 
-import { configureStore } from '@reduxjs/toolkit';
-import { tempSlice } from './slices/tempSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import { tempSlice } from "./slices/tempSlice";
 
 const rootReducer = {
   temp: tempSlice.reducer,

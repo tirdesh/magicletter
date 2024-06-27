@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface TempState {
   loading: boolean;
@@ -11,7 +11,7 @@ const initialState: TempState = {
 };
 
 export const tempSlice = createSlice({
-  name: 'Temp',
+  name: "Temp",
   initialState,
   reducers: {
     setValue: (state, action: PayloadAction<string | null>) => {

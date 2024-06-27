@@ -1,8 +1,8 @@
-import React from 'react';
-import { ModeToggle } from '@/components/ui/mood-toggle';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { auth } from '../../firebase';
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/ui/mood-toggle";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { auth } from "../../firebase";
 
 export const Header: React.FC = () => {
   const navigate = useNavigate();
@@ -13,9 +13,9 @@ export const Header: React.FC = () => {
       <div className="flex items-center space-x-4">
         <ModeToggle />
         {auth.currentUser ? (
-          <Button onClick={() => navigate('/profile')}>Profile</Button>
+          <Button onClick={() => navigate("/profile")}>Profile</Button>
         ) : (
-          <Button onClick={() => navigate('/login')}>Login</Button>
+          <Button onClick={() => navigate("/login")}>Login</Button>
         )}
       </div>
     </header>

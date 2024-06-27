@@ -1,3 +1,3 @@
 // src/model/index.ts
-export * from './ResumeInterfaces';
-export * from './AiInterfaces';
+export * from "./AiInterfaces";
+export * from "./ResumeInterfaces";
