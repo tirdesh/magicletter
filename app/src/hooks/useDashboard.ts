@@ -6,7 +6,7 @@ import { getResumes, addResume } from '../utils/firebaseFunctions';
 import { Resume } from '../model';
 import { toast } from "@/components/ui/use-toast";
 import { ResumeFormValues } from '@/components/ResumeUpload';
-import fetchJobContent from '@/utils/fetchJobContent';
+import fetchJobContent from '@/services/fetchJobContent';
 import { getResumeText } from '@/utils/resumeUtils/resumeText';
 import CoverLetterGenerator from '@/utils/coverLetterUtils';
 
