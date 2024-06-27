@@ -1,5 +1,4 @@
-import axios from "axios";
-import { aiProviders } from "./providers";
+import * as aiProviders from "./providers";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -7,12 +6,13 @@ export default async function handler(req, res) {
   }
 
   const { provider, prompt, text } = req.body;
+  const providerKey = `${provider}Provider`;
 
-  if (!aiProviders[provider]) {
+  if (!aiProviders[providerKey]) {
     return res.status(400).json({ error: "Unsupported AI provider" });
   }
 
-  const config = aiProviders[provider];
+  const config = aiProviders[providerKey];
   // eslint-disable-next-line no-undef
   const apiKey = process.env[`${provider.toUpperCase()}_API_KEY`];
 
@@ -21,18 +21,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const client = axios.create({
-      baseURL: config.apiUrl,
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    const requestData = config.formatRequest(prompt, text);
-    const response = await client.post("", requestData);
-    const result = config.extractResponse(response);
-
+    const result = await config.processRequest(prompt, text, apiKey);
     res.status(200).json({ result });
   } catch (error) {
     console.error(`Error processing text with ${provider}:`, error);
