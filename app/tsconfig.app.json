@@ -26,9 +26,10 @@
     /* for shadcn */
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"],
+
+      /* for vercel */
+      "types": ["@vercel/edge"]
     }
   },
   "include": ["src"]

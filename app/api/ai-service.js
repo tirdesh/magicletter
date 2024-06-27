@@ -1,89 +1,58 @@
-import axios from "axios";
+/* eslint-disable no-undef */
+import { createAIProvider } from "./aiProviders.js";
 
-const openAIProvider = {
-  apiUrl: "https://api.openai.com/v1/chat/completions",
-
-  formatRequest: (prompt, text) => ({
-    model: "gpt-3.5-turbo",
-    messages: [
-      { role: "system", content: prompt },
-      { role: "user", content: text },
-    ],
-  }),
-
-  extractResponse: (response) => response.data.choices[0].message.content,
-
-  async processRequest(prompt, text, apiKey) {
-    const client = axios.create({
-      baseURL: this.apiUrl,
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    const requestData = this.formatRequest(prompt, text);
-    const response = await client.post("", requestData);
-    return this.extractResponse(response);
-  },
+export const config = {
+  runtime: "edge",
 };
 
-const claudeProvider = {
-  apiUrl: "https://api.anthropic.com/v1/complete",
-
-  formatRequest: (prompt, text) => ({
-    prompt: `${prompt}\n\nHuman: ${text}\n\nAssistant:`,
-    model: "claude-v1",
-    max_tokens_to_sample: 1000,
-  }),
-
-  extractResponse: (response) => response.data.completion,
-
-  async processRequest(prompt, text, apiKey) {
-    const client = axios.create({
-      baseURL: this.apiUrl,
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    const requestData = this.formatRequest(prompt, text);
-    const response = await client.post("", requestData);
-    return this.extractResponse(response);
-  },
-};
-
-const aiProviders = {
-  openai: openAIProvider,
-  claude: claudeProvider,
-};
-
-export default async function handler(req, res) {
+export default async function handler(req) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  const { provider, prompt, text } = req.body;
-
-  if (!aiProviders[provider]) {
-    return res.status(400).json({ error: "Unsupported AI provider" });
-  }
-
-  const config = aiProviders[provider];
-
-  // eslint-disable-next-line no-undef
-  const apiKey = process.env[`${provider.toUpperCase()}_API_KEY`];
-
-  if (!apiKey) {
-    return res.status(500).json({ error: "API key not configured" });
+    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+      status: 405,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   try {
-    const result = await config.processRequest(prompt, text, apiKey);
-    res.status(200).json({ result });
+    const { provider, prompt, text } = await req.json();
+
+    let apiKey;
+    switch (provider) {
+      case "openai":
+        apiKey = process.env.OPENAI_API_KEY ?? "";
+        break;
+      case "cohere":
+        apiKey = process.env.COHERE_API_KEY ?? "";
+        break;
+      case "claude":
+        apiKey = process.env.CLAUDE_API_KEY ?? "";
+        break;
+      default:
+        throw new Error(`Unsupported AI provider: ${provider}`);
+    }
+
+    if (!apiKey) {
+      throw new Error(`API key not configured for provider: ${provider}`);
+    }
+
+    const aiProvider = createAIProvider(provider, apiKey);
+    const result = await aiProvider.processRequest(prompt, text);
+
+    return new Response(JSON.stringify({ result }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error) {
-    console.error(`Error processing text with ${provider}:`, error);
-    res.status(500).json({ error: "Error processing request" });
+    console.error("Error processing request:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Error processing request",
+        details: error instanceof Error ? error.message : "Unknown error",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
