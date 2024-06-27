@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "api/fetch-job-content.js": {
-      "runtime": "edge"
+      "runtime": "vercel-edge@1.0.0"
     }
   },
   "routes": [

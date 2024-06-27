@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const config = {
-  runtime: "edge",
+  runtime: "vercel-edge@1.0.0",
 };
 
 export default async function handler(req) {
