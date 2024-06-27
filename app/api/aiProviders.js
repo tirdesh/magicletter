@@ -1,4 +1,5 @@
 import axios from "axios";
+import { encode } from "gpt-3-encoder"; // Use a library to count tokens
 
 class BaseAIProvider {
   constructor(apiKey, baseURL) {
@@ -12,21 +13,36 @@ class BaseAIProvider {
     });
   }
 }
-
 class OpenAIProvider extends BaseAIProvider {
   constructor(apiKey) {
     super(apiKey, "https://api.openai.com/v1");
   }
 
   async processRequest(prompt, text) {
-    const response = await this.client.post("/chat/completions", {
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: prompt },
-        { role: "user", content: text },
-      ],
-    });
-    return response.data.choices[0].message.content;
+    const maxTokens = 4096; // Adjust based on the model's limit
+    const inputTokens = encode(prompt + text).length;
+
+    if (inputTokens > maxTokens) {
+      throw new Error(`Input exceeds token limit: ${inputTokens} tokens`);
+    }
+
+    try {
+      const response = await this.client.post("/chat/completions", {
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: prompt },
+          { role: "user", content: text },
+        ],
+      });
+      return response.data.choices[0].message.content;
+    } catch (error) {
+      if (error.response && error.response.status === 429) {
+        console.error("Rate limit exceeded. Retrying...");
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second before retrying
+        return this.processRequest(prompt, text);
+      }
+      throw error;
+    }
   }
 }
 

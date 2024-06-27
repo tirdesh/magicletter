@@ -29,6 +29,7 @@
     "compromise": "^14.13.0",
     "firebase": "^10.12.2",
     "framer-motion": "^11.2.12",
+    "gpt-3-encoder": "^1.1.4",
     "lucide-react": "^0.396.0",
     "mammoth": "^1.8.0",
     "pdfjs-dist": "^4.3.136",
