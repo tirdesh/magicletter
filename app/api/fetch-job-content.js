@@ -1,19 +1,24 @@
-// api/fetch-job-content.js
-import axios from 'axios';
-const axios = require('axios');
+import axios from "axios";
 
-export default async (req, res) => {
-    const { url } = req.query;
+export const config = {
+  runtime: "edge",
+};
+
+export default async function handler(req) {
+  const url = new URL(req.url).searchParams.get("url");
 
   if (!url) {
-    return res.status(400).send('URL parameter is required');
+    return new Response("URL parameter is required", { status: 400 });
   }
 
   try {
     const response = await axios.get(url);
-    res.send(response.data);
+    return new Response(response.data, {
+      status: 200,
+      headers: { "Content-Type": "text/html" },
+    });
   } catch (error) {
-    console.error('Error fetching job content:', error);
-    res.status(500).send('Error fetching job content');
+    console.error("Error fetching job content:", error);
+    return new Response("Error fetching job content", { status: 500 });
   }
-};
+}

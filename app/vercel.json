@@ -1,5 +1,10 @@
 {
   "version": 2,
+  "functions": {
+    "api/fetch-job-content.js": {
+      "runtime": "edge"
+    }
+  },
   "routes": [
     { "handle": "filesystem" },
     { "src": "/app/.*", "dest": "/index.html" },
