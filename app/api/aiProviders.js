@@ -1,5 +1,5 @@
+// aiProviders.js
 import axios from "axios";
-import { encode } from "gpt-3-encoder"; // Use a library to count tokens
 
 class BaseAIProvider {
   constructor(apiKey, baseURL) {
@@ -9,23 +9,45 @@ class BaseAIProvider {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      timeout: 30000, // 30 seconds timeout
+      timeout: 60000, // 60 seconds timeout
     });
   }
 }
+
 class OpenAIProvider extends BaseAIProvider {
   constructor(apiKey) {
     super(apiKey, "https://api.openai.com/v1");
   }
 
-  async processRequest(prompt, text) {
-    const maxTokens = 4096; // Adjust based on the model's limit
-    const inputTokens = encode(prompt + text).length;
+  async processRequest(prompt, text, maxRetries = 3) {
+    const splitLength = 2000; // Adjust based on your needs
+    const parts = this.splitPrompt(text, splitLength);
+    let finalResponse = "";
 
-    if (inputTokens > maxTokens) {
-      throw new Error(`Input exceeds token limit: ${inputTokens} tokens`);
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i];
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          const result = await this.sendRequest(prompt, part.content);
+          if (i === parts.length - 1) {
+            finalResponse = result;
+          }
+          break; // Success, move to next part
+        } catch (error) {
+          if (error.message === "Rate limit exceeded") {
+            const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
+            await new Promise((resolve) => setTimeout(resolve, delay));
+            continue;
+          }
+          throw error; // Rethrow other errors
+        }
+      }
     }
 
+    return finalResponse;
+  }
+
+  async sendRequest(prompt, text) {
     try {
       const response = await this.client.post("/chat/completions", {
         model: "gpt-3.5-turbo",
@@ -33,16 +55,57 @@ class OpenAIProvider extends BaseAIProvider {
           { role: "system", content: prompt },
           { role: "user", content: text },
         ],
+        max_tokens: 1000, // Adjust as needed
       });
       return response.data.choices[0].message.content;
     } catch (error) {
-      if (error.response && error.response.status === 429) {
-        console.error("Rate limit exceeded. Retrying...");
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second before retrying
-        return this.processRequest(prompt, text);
+      if (error.response) {
+        const { status } = error.response;
+        if (status === 429) {
+          throw new Error("Rate limit exceeded");
+        }
       }
       throw error;
     }
+  }
+
+  splitPrompt(text, splitLength) {
+    const numParts = Math.ceil(text.length / splitLength);
+    const parts = [];
+
+    for (let i = 0; i < numParts; i++) {
+      const start = i * splitLength;
+      const end = Math.min((i + 1) * splitLength, text.length);
+      let content;
+
+      if (i === numParts - 1) {
+        content = `[START PART ${i + 1}/${numParts}]\n${text.slice(
+          start,
+          end
+        )}\n[END PART ${
+          i + 1
+        }/${numParts}]\nALL PARTS SENT. Now you can continue processing the request.`;
+      } else {
+        content = `Do not answer yet. This is just another part of the text I want to send you. Just receive and acknowledge as "Part ${
+          i + 1
+        }/${numParts} received" and wait for the next part.\n[START PART ${
+          i + 1
+        }/${numParts}]\n${text.slice(start, end)}\n[END PART ${
+          i + 1
+        }/${numParts}]\nRemember not answering yet. Just acknowledge you received this part with the message "Part ${
+          i + 1
+        }/${numParts} received" and wait for the next part.`;
+      }
+
+      parts.push({
+        name: `split_${String(i + 1).padStart(3, "0")}_of_${String(
+          numParts
+        ).padStart(3, "0")}.txt`,
+        content: content,
+      });
+    }
+
+    return parts;
   }
 }
 
