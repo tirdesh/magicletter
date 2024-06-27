@@ -1,9 +1,4 @@
-// src/model/AiInterfaces.ts
-export interface AIProvider {
-  name: "cohere" | "openai" | "claude";
-  apiUrl: string;
-  apiKey: string;
-}
+export type AIProviderName = "openai" | "claude" | "cohere"; // Add other providers as needed
 
 export interface AIModelConfig {
   model: string;
@@ -11,10 +6,6 @@ export interface AIModelConfig {
 }
 
 export type AIProviderConfig = {
-  name: "cohere" | "openai" | "claude";
-  apiUrl: string;
-  apiKey: string;
+  name: AIProviderName;
   modelConfig: AIModelConfig;
-  formatRequest: (prompt: string, text: string) => unknown;
-  extractResponse: (response: unknown) => string;
 };
