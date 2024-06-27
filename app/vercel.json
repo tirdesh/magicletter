@@ -1,10 +1,5 @@
 {
   "version": 2,
-  "functions": {
-    "api/fetch-job-content.js": {
-      "runtime": "vercel-edge@1.0.0"
-    }
-  },
   "routes": [
     { "handle": "filesystem" },
     { "src": "/app/.*", "dest": "/index.html" },
