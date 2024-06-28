@@ -1,4 +1,3 @@
-// src/hooks/useDashboard.ts
 import { ResumeFormValues } from "@/components/ResumeUpload";
 import { toast } from "@/components/ui/use-toast";
 import fetchJobContent from "@/services/fetchJobContent";
@@ -13,10 +12,12 @@ import { addResume, getResumes } from "../utils/firebaseFunctions";
 export type AIModel = "openai" | "claude";
 
 export const useDashboard = () => {
+  const initialInstructions = `do your best`;
+
   const navigate = useNavigate();
   const [jobLink, setJobLink] = useState("");
   const [selectedResume, setSelectedResume] = useState("");
-  const [instructions, setInstructions] = useState("");
+  const [instructions, setInstructions] = useState(initialInstructions);
   const [aiModel, setAiModel] = useState<AIModel>("openai");
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [generatedLetter, setGeneratedLetter] = useState("");

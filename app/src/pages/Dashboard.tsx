@@ -1,4 +1,3 @@
-// src/pages/Dashboard.tsx
 import CoverLetterSection from "@/components/CoverLetterSection";
 import SelectOrUploadResume from "@/components/SelectOrUploadResume";
 import { Button } from "@/components/ui/button";
@@ -86,6 +85,7 @@ const Dashboard: React.FC = () => {
               value={instructions}
               onChange={(e) => setInstructions(e.target.value)}
               placeholder="Enter any specific instructions"
+              rows={3}
             />
           </div>
           <div>
