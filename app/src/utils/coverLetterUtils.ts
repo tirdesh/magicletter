@@ -117,7 +117,6 @@ class CoverLetterGenerator {
       3. Important keywords
       4. Required skills
       5. Preferred skills (if any)
-
       Return the result as a JSON object with the following structure:
       {
         "summary": "A brief summary of the job",
@@ -127,7 +126,6 @@ class CoverLetterGenerator {
         "preferredSkills": ["Skill 1", "Skill 2", ...]
       }
     `;
-
     const result = await this.aiService.processText(prompt, jobDescription);
     return JSON.parse(result);
   }
@@ -143,7 +141,6 @@ class CoverLetterGenerator {
       4. Any recent news or projects mentioned
       5. Information about the company culture
       6. The industry the company operates in
-
       Return the result as a JSON object with the following structure:
       {
         "name": "Company Name",
@@ -155,7 +152,6 @@ class CoverLetterGenerator {
         "industry": "Industry the company operates in"
       }
     `;
-
     const result = await this.aiService.processText(prompt, jobDescription);
     return JSON.parse(result);
   }
@@ -170,7 +166,6 @@ class CoverLetterGenerator {
       1. Identify the most relevant experiences that match the job requirements
       2. List skills from the resume that align with the required and preferred skills
       3. Extract notable achievements that would be relevant to this role
-
       Return the result as a JSON object with the following structure:
       {
         "experiences": ["Relevant experience 1", "Relevant experience 2", ...],
@@ -178,7 +173,6 @@ class CoverLetterGenerator {
         "achievements": ["Notable achievement 1", "Notable achievement 2", ...]
       }
     `;
-
     const context = JSON.stringify({ resumeText, jobSummary, companyInfo });
     const result = await this.aiService.processText(prompt, context);
     return JSON.parse(result);
@@ -194,7 +188,6 @@ class CoverLetterGenerator {
       3. State
       4. Phone Number
       5. Email Address
-
       Return the result as a JSON object with the following structure:
       {
         "fullName": "Candidate's Full Name",
@@ -204,7 +197,6 @@ class CoverLetterGenerator {
         "email": "Candidate's Email Address"
       }
     `;
-
     const result = await this.aiService.processText(prompt, resumeText);
     return JSON.parse(result);
   }
@@ -242,10 +234,8 @@ class CoverLetterGenerator {
           : ""
       }
       9. Follow these specific user instructions: ${userInstructions}
-
       Return the cover letter as a string, focusing only on the content paragraphs (do not include the header or signature).
     `;
-
     const context = JSON.stringify({
       jobSummary,
       companyInfo,
@@ -271,7 +261,6 @@ class CoverLetterGenerator {
     const prompt = `
       Refine the following cover letter content:
       ${initialCoverLetter}
-
       Ensure it's concise, impactful, and between ${
         options.length === "short"
           ? "250-300"
@@ -280,35 +269,25 @@ class CoverLetterGenerator {
           : "350-400"
       } words.
       Format the cover letter as follows:
-
       ${candidateInfo.fullName}
       ${candidateInfo.city}, ${candidateInfo.state}
       ${candidateInfo.phoneNumber}
       ${candidateInfo.email}
       ${currentDate}
-
       Hiring Manager
       ${companyInfo.name}
       ${companyInfo.city}, ${companyInfo.state}
-
       Dear Hiring Manager,
-
       [Refined Paragraph 1]
-
       [Refined Paragraph 2]
-
       [Refined Paragraph 3]
-
       [Optional Refined Paragraph 4 if needed]
-
       Warm regards,
       ${candidateInfo.fullName}
-
       After formatting:
       1. Extract 5 key points that make the candidate a strong fit for the role.
       2. Provide a match score (0-100) based on how well the cover letter aligns with the job requirements.
       3. Suggest 2-3 improvements or additions that could make the cover letter even stronger.
-
       Return the result as a JSON object with the following structure:
       {
         "coverLetter": "The formatted and refined cover letter text",
@@ -317,7 +296,6 @@ class CoverLetterGenerator {
         "suggestedImprovements": ["Improvement 1", "Improvement 2", "Improvement 3"]
       }
     `;
-
     const context = JSON.stringify({
       jobSummary,
       options,

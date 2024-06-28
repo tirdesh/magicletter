@@ -30,22 +30,28 @@ class BaseAIProvider {
 class OpenAIProvider extends BaseAIProvider {
   constructor(apiKey) {
     super(apiKey, "https://api.openai.com/v1");
+    this.splitLength = 3500; // Increased split size
   }
 
   async *processRequestStream(prompt, text) {
-    const splitLength = 2000;
-    const parts = this.splitPrompt(text, splitLength);
+    const parts = this.splitPrompt(text, this.splitLength);
+    let accumulatedResponse = "";
 
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
       try {
-        const result = await this.sendRequest(prompt, part.content);
+        const result = await this.sendRequest(
+          prompt,
+          part.content,
+          i === parts.length - 1
+        );
+        accumulatedResponse += result;
         yield {
           type: "progress",
           data: `Processed part ${i + 1} of ${parts.length}`,
         };
         if (i === parts.length - 1) {
-          yield { type: "result", data: result };
+          yield { type: "result", data: accumulatedResponse.trim() };
         }
       } catch (error) {
         if (error.message.includes("429")) {
@@ -60,7 +66,19 @@ class OpenAIProvider extends BaseAIProvider {
     }
   }
 
-  async sendRequest(prompt, text) {
+  async sendRequest(prompt, text, isFinalPart) {
+    const messages = [
+      { role: "system", content: prompt },
+      { role: "user", content: text },
+    ];
+
+    if (!isFinalPart) {
+      messages.push({
+        role: "user",
+        content: "Please continue with the next part.",
+      });
+    }
+
     const response = await this.fetchWithRetry(
       `${this.baseURL}/chat/completions`,
       {
@@ -71,11 +89,8 @@ class OpenAIProvider extends BaseAIProvider {
         },
         body: JSON.stringify({
           model: "gpt-3.5-turbo",
-          messages: [
-            { role: "system", content: prompt },
-            { role: "user", content: text },
-          ],
-          max_tokens: 1000,
+          messages: messages,
+          max_tokens: 4096,
         }),
       }
     );
@@ -91,23 +106,23 @@ class OpenAIProvider extends BaseAIProvider {
       const end = Math.min((i + 1) * splitLength, text.length);
       let content;
 
-      if (i === numParts - 1) {
-        content = `[START PART ${i + 1}/${numParts}]\n${text.slice(
+      if (i === 0) {
+        content = `This is part 1 of ${numParts}. Please process this part and wait for the next part before generating the final response.\n\n${text.slice(
           start,
           end
-        )}\n[END PART ${
-          i + 1
-        }/${numParts}]\nALL PARTS SENT. Now you can continue processing the request.`;
+        )}`;
+      } else if (i === numParts - 1) {
+        content = `This is the final part (part ${numParts} of ${numParts}). Please process this part and generate the final response.\n\n${text.slice(
+          start,
+          end
+        )}`;
       } else {
-        content = `Do not answer yet. This is just another part of the text I want to send you. Just receive and acknowledge as "Part ${
+        content = `This is part ${
           i + 1
-        }/${numParts} received" and wait for the next part.\n[START PART ${
-          i + 1
-        }/${numParts}]\n${text.slice(start, end)}\n[END PART ${
-          i + 1
-        }/${numParts}]\nRemember not answering yet. Just acknowledge you received this part with the message "Part ${
-          i + 1
-        }/${numParts} received" and wait for the next part.`;
+        } of ${numParts}. Please process this part and wait for the next part before generating the final response.\n\n${text.slice(
+          start,
+          end
+        )}`;
       }
 
       parts.push({
@@ -121,7 +136,6 @@ class OpenAIProvider extends BaseAIProvider {
     return parts;
   }
 }
-
 class CohereProvider extends BaseAIProvider {
   constructor(apiKey) {
     super(apiKey, "https://api.cohere.ai/v1");
