@@ -9,7 +9,7 @@ class BaseAIProvider {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
-      timeout: 60000, // 60 seconds timeout
+      timeout: 20000, // 20 seconds timeout
     });
   }
 }
@@ -19,54 +19,44 @@ class OpenAIProvider extends BaseAIProvider {
     super(apiKey, "https://api.openai.com/v1");
   }
 
-  async processRequest(prompt, text, maxRetries = 3) {
+  async *processRequestStream(prompt, text) {
     const splitLength = 2000; // Adjust based on your needs
     const parts = this.splitPrompt(text, splitLength);
-    let finalResponse = "";
 
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
-      for (let attempt = 0; attempt < maxRetries; attempt++) {
-        try {
-          const result = await this.sendRequest(prompt, part.content);
-          if (i === parts.length - 1) {
-            finalResponse = result;
-          }
-          break; // Success, move to next part
-        } catch (error) {
-          if (error.message === "Rate limit exceeded") {
-            const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
-            await new Promise((resolve) => setTimeout(resolve, delay));
-            continue;
-          }
-          throw error; // Rethrow other errors
+      try {
+        const result = await this.sendRequest(prompt, part.content);
+        yield {
+          type: "progress",
+          data: `Processed part ${i + 1} of ${parts.length}`,
+        };
+        if (i === parts.length - 1) {
+          yield { type: "result", data: result };
         }
+      } catch (error) {
+        if (error.response && error.response.status === 429) {
+          yield {
+            type: "error",
+            data: "Rate limit exceeded. Please try again later.",
+          };
+          return;
+        }
+        throw error;
       }
     }
-
-    return finalResponse;
   }
 
   async sendRequest(prompt, text) {
-    try {
-      const response = await this.client.post("/chat/completions", {
-        model: "gpt-3.5-turbo",
-        messages: [
-          { role: "system", content: prompt },
-          { role: "user", content: text },
-        ],
-        max_tokens: 1000, // Adjust as needed
-      });
-      return response.data.choices[0].message.content;
-    } catch (error) {
-      if (error.response) {
-        const { status } = error.response;
-        if (status === 429) {
-          throw new Error("Rate limit exceeded");
-        }
-      }
-      throw error;
-    }
+    const response = await this.client.post("/chat/completions", {
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: prompt },
+        { role: "user", content: text },
+      ],
+      max_tokens: 1000, // Adjust as needed
+    });
+    return response.data.choices[0].message.content;
   }
 
   splitPrompt(text, splitLength) {
