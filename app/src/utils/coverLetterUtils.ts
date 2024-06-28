@@ -127,6 +127,7 @@ class CoverLetterGenerator {
       }
     `;
     const result = await this.aiService.processText(prompt, jobDescription);
+    console.log("Job summary:", result);
     return JSON.parse(result);
   }
 
@@ -153,6 +154,7 @@ class CoverLetterGenerator {
       }
     `;
     const result = await this.aiService.processText(prompt, jobDescription);
+    console.log("Company info:", result);
     return JSON.parse(result);
   }
 
@@ -175,6 +177,7 @@ class CoverLetterGenerator {
     `;
     const context = JSON.stringify({ resumeText, jobSummary, companyInfo });
     const result = await this.aiService.processText(prompt, context);
+    console.log("Relevant experience:", result);
     return JSON.parse(result);
   }
 
@@ -198,6 +201,7 @@ class CoverLetterGenerator {
       }
     `;
     const result = await this.aiService.processText(prompt, resumeText);
+    console.log("Extracted candidate info:", result);
     return JSON.parse(result);
   }
 
@@ -243,7 +247,9 @@ class CoverLetterGenerator {
       options,
       userInstructions,
     });
-    return await this.aiService.processText(prompt, context);
+    const result = await this.aiService.processText(prompt, context);
+    console.log("Cover letter:", result);
+    return result;
   }
 
   private async refineCoverLetter(
@@ -303,6 +309,7 @@ class CoverLetterGenerator {
       companyInfo,
     });
     const result = await this.aiService.processText(prompt, context);
+    console.log("Refined Cover Letter:", result);
     return JSON.parse(result);
   }
 }
