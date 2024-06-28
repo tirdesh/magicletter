@@ -37,19 +37,23 @@ export default class AIService {
         const lines = chunk.split("\n").filter((line) => line.trim() !== "");
 
         for (const line of lines) {
-          const event = JSON.parse(line);
-          switch (event.type) {
-            case "progress":
-              console.log("Progress:", event.data);
-              // You can emit an event or update UI to show progress
-              break;
-            case "result":
-              console.log("Final result:", event.data);
-              finalResult = event.data;
-              break;
-            case "error":
-              console.error("Error:", event.data);
-              throw new Error(event.data);
+          try {
+            const event = JSON.parse(line);
+            switch (event.type) {
+              case "progress":
+                console.log("Progress:", event.data);
+                // You can emit an event or update UI to show progress
+                break;
+              case "result":
+                console.log("Final result:", event.data);
+                finalResult = event.data;
+                break;
+              case "error":
+                console.error("Error:", event.data);
+                throw new Error(event.data);
+            }
+          } catch (error) {
+            console.error("Error parsing JSON:", error);
           }
         }
 
