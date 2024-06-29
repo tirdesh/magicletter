@@ -1,4 +1,5 @@
-// src/components/JobAnalysis.tsx
+// src/components/ResumeAnalysis.tsx
+import SelectOrUploadResume from "@/components/SelectOrUploadResume";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,62 +8,84 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { useJobAnalyzer } from "@/hooks/useJobAnalyzer";
-import { CompanyInfo, JobSummary } from "@/model";
-import fetchJobContent from "@/services/fetchJobContent";
+import { useToast } from "@/components/ui/use-toast";
+import { useResumeAnalyzer } from "@/hooks/useResumeAnalyzer";
+import {
+  CandidateInfo,
+  CompanyInfo,
+  JobSummary,
+  RelevantExperience,
+} from "@/model";
+import { getResumeText } from "@/utils/resumeUtils/resumeText";
 import { Edit2, Loader2, Minus, Plus, Save, X } from "lucide-react";
 import React, { useState } from "react";
 
-interface JobAnalysisProps {
-  initialJobSummary?: JobSummary | null;
-  initialCompanyInfo?: CompanyInfo | null;
+interface ResumeAnalysisProps {
+  jobSummary: JobSummary;
+  companyInfo: CompanyInfo;
+  initialRelevantExperience?: RelevantExperience | null;
+  initialCandidateInfo?: CandidateInfo | null;
   onAnalysisComplete: (
-    jobSummary: JobSummary,
-    companyInfo: CompanyInfo
+    relevantExperience: RelevantExperience,
+    candidateInfo: CandidateInfo
   ) => void;
-  onUpdate: (jobSummary: JobSummary, companyInfo: CompanyInfo) => void;
+  onUpdate: (
+    relevantExperience: RelevantExperience,
+    candidateInfo: CandidateInfo
+  ) => void;
 }
 
-const JobAnalysis: React.FC<JobAnalysisProps> = ({
-  initialJobSummary,
-  initialCompanyInfo,
+const ResumeAnalysis: React.FC<ResumeAnalysisProps> = ({
+  jobSummary,
+  companyInfo,
+  initialRelevantExperience,
+  initialCandidateInfo,
   onAnalysisComplete,
   onUpdate,
 }) => {
-  const [jobLink, setJobLink] = useState("");
+  const [selectedResume, setSelectedResume] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [editingSection, setEditingSection] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("job-summary");
-  const { analyzeJob, isAnalyzing, error } = useJobAnalyzer();
-  const [jobSummary, setJobSummary] = useState<JobSummary | null>(
-    initialJobSummary || null
-  );
-  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(
-    initialCompanyInfo || null
+  const [activeTab, setActiveTab] = useState("relevant-experience");
+  const { toast } = useToast();
+  const { analyzeResume, isAnalyzing, error } = useResumeAnalyzer();
+  const [relevantExperience, setRelevantExperience] =
+    useState<RelevantExperience | null>(initialRelevantExperience || null);
+  const [candidateInfo, setCandidateInfo] = useState<CandidateInfo | null>(
+    initialCandidateInfo || null
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await analyzeJobLink();
-  };
+  const handleAnalyze = async () => {
+    if (!selectedResume) {
+      toast({
+        title: "Error",
+        description: "Please select a resume to analyze.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  const analyzeJobLink = async () => {
     setIsLoading(true);
     try {
-      const jobContent = await fetchJobContent(jobLink);
-      const { jobSummary: newJobSummary, companyInfo: newCompanyInfo } =
-        await analyzeJob(jobContent);
-      setJobSummary(newJobSummary);
-      setCompanyInfo(newCompanyInfo);
-      onAnalysisComplete(newJobSummary, newCompanyInfo);
-    } catch (err) {
-      console.error("Error analyzing job:", err);
+      const resumeText = await getResumeText(selectedResume);
+      const {
+        relevantExperience: newRelevantExperience,
+        candidateInfo: newCandidateInfo,
+      } = await analyzeResume(resumeText, jobSummary, companyInfo);
+      setRelevantExperience(newRelevantExperience);
+      setCandidateInfo(newCandidateInfo);
+      onAnalysisComplete(newRelevantExperience, newCandidateInfo);
+    } catch (error) {
+      console.error("Error analyzing resume:", error);
+      toast({
+        title: "Error",
+        description: "Failed to analyze resume.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -72,15 +95,15 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
 
   const handleSave = () => {
     setEditingSection(null);
-    if (jobSummary && companyInfo) {
-      onUpdate(jobSummary, companyInfo);
+    if (relevantExperience && candidateInfo) {
+      onUpdate(relevantExperience, candidateInfo);
     }
   };
 
   const handleCancel = () => {
     setEditingSection(null);
-    setJobSummary(initialJobSummary || null);
-    setCompanyInfo(initialCompanyInfo || null);
+    setRelevantExperience(initialRelevantExperience || null);
+    setCandidateInfo(initialCandidateInfo || null);
   };
 
   const renderEditableList = (
@@ -91,7 +114,7 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
       <ul className="space-y-2">
         {items.map((item, index) => (
           <li key={index} className="flex items-center">
-            <Input
+            <Textarea
               value={item}
               onChange={(e) => {
                 const newItems = [...items];
@@ -152,8 +175,8 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
   );
 
   const renderTabContent = (
-    data: JobSummary | CompanyInfo,
-    isJobSummary: boolean
+    data: RelevantExperience | CandidateInfo,
+    isRelevantExperience: boolean
   ) => (
     <>
       {Object.entries(data).map(([key, value]) => {
@@ -163,15 +186,15 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
           content =
             editingSection === title ? (
               renderEditableList(value, (newItems) =>
-                isJobSummary
-                  ? setJobSummary({
-                      ...jobSummary!,
+                isRelevantExperience
+                  ? setRelevantExperience({
+                      ...relevantExperience!,
                       [key]: newItems,
-                    } as JobSummary)
-                  : setCompanyInfo({
-                      ...companyInfo!,
+                    } as RelevantExperience)
+                  : setCandidateInfo({
+                      ...candidateInfo!,
                       [key]: newItems,
-                    } as CompanyInfo)
+                    } as CandidateInfo)
               )
             ) : (
               <ul className="list-disc pl-5">
@@ -186,15 +209,15 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
               <Textarea
                 value={value}
                 onChange={(e) =>
-                  isJobSummary
-                    ? setJobSummary({
-                        ...jobSummary!,
+                  isRelevantExperience
+                    ? setRelevantExperience({
+                        ...relevantExperience!,
                         [key]: e.target.value,
-                      } as JobSummary)
-                    : setCompanyInfo({
-                        ...companyInfo!,
+                      } as RelevantExperience)
+                    : setCandidateInfo({
+                        ...candidateInfo!,
                         [key]: e.target.value,
-                      } as CompanyInfo)
+                      } as CandidateInfo)
                 }
                 className="mt-1 min-h-[100px]"
               />
@@ -210,35 +233,22 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Job Analysis</CardTitle>
-        <CardDescription>Analyze a job posting to get started</CardDescription>
+        <CardTitle>Resume Analysis</CardTitle>
+        <CardDescription>Analyze your resume for the job</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4 mb-6">
-          <div className="flex flex-col space-y-2">
-            <Label htmlFor="job-link">Job Posting Link</Label>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-              <Input
-                id="job-link"
-                value={jobLink}
-                onChange={(e) => setJobLink(e.target.value)}
-                placeholder="Enter job posting URL"
-                className="flex-grow"
-              />
-              <Button
-                type="submit"
-                disabled={isLoading || isAnalyzing}
-                className="w-full sm:w-auto"
-              >
-                {isLoading || isAnalyzing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Analyze"
-                )}
-              </Button>
-            </div>
-          </div>
-        </form>
+        <div className="space-y-4 mb-6">
+          <SelectOrUploadResume onResumeSelect={setSelectedResume} />
+          <Button
+            onClick={handleAnalyze}
+            disabled={isLoading || isAnalyzing || !selectedResume}
+          >
+            {isLoading || isAnalyzing ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : null}
+            {isLoading || isAnalyzing ? "Analyzing..." : "Analyze Resume"}
+          </Button>
+        </div>
 
         {isLoading || isAnalyzing ? (
           <div className="space-y-4">
@@ -246,21 +256,23 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />
           </div>
-        ) : jobSummary && companyInfo ? (
+        ) : relevantExperience && candidateInfo ? (
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
             className="w-full"
           >
             <TabsList className="mb-4">
-              <TabsTrigger value="job-summary">Job Summary</TabsTrigger>
-              <TabsTrigger value="company-info">Company Info</TabsTrigger>
+              <TabsTrigger value="relevant-experience">
+                Relevant Experience
+              </TabsTrigger>
+              <TabsTrigger value="candidate-info">Candidate Info</TabsTrigger>
             </TabsList>
-            <TabsContent value="job-summary">
-              {renderTabContent(jobSummary, true)}
+            <TabsContent value="relevant-experience">
+              {renderTabContent(relevantExperience, true)}
             </TabsContent>
-            <TabsContent value="company-info">
-              {renderTabContent(companyInfo, false)}
+            <TabsContent value="candidate-info">
+              {renderTabContent(candidateInfo, false)}
             </TabsContent>
           </Tabs>
         ) : null}
@@ -270,4 +282,4 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
   );
 };
 
-export default JobAnalysis;
+export default ResumeAnalysis;

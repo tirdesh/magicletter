@@ -2,8 +2,7 @@
 import { CoverLetterForm } from "@/components/CoverLetter/CoverLetterForm";
 import CoverLetterResult from "@/components/CoverLetter/CoverLetterResult";
 import JobAnalysis from "@/components/JobAnalysis";
-import ResumeAnalysisForm from "@/components/ResumeAnalysis/ResumeAnalysisForm";
-import ResumeAnalysisResult from "@/components/ResumeAnalysis/ResumeAnalysisResult";
+import ResumeAnalysis from "@/components/ResumeAnalysis";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -120,20 +119,14 @@ const CoverLetterWizard: React.FC = () => {
             )}
 
             {currentStep === 1 && jobSummary && companyInfo && (
-              <>
-                <ResumeAnalysisForm
-                  jobSummary={jobSummary}
-                  companyInfo={companyInfo}
-                  onAnalysisComplete={handleResumeAnalysisComplete}
-                />
-                {relevantExperience && candidateInfo && (
-                  <ResumeAnalysisResult
-                    initialRelevantExperience={relevantExperience}
-                    initialCandidateInfo={candidateInfo}
-                    onUpdate={handleResumeAnalysisUpdate}
-                  />
-                )}
-              </>
+              <ResumeAnalysis
+                jobSummary={jobSummary}
+                companyInfo={companyInfo}
+                initialRelevantExperience={relevantExperience}
+                initialCandidateInfo={candidateInfo}
+                onAnalysisComplete={handleResumeAnalysisComplete}
+                onUpdate={handleResumeAnalysisUpdate}
+              />
             )}
 
             {currentStep === 2 &&
