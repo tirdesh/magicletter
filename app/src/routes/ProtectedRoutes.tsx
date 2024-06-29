@@ -1,3 +1,4 @@
+import CoverLetterWizard from "@/pages/CoverLetterWizard";
 import ResumeDashboard from "@/pages/ResumeDashboard";
 import ResumeViewPage from "@/pages/ResumeViewPage";
 import React, { useEffect, useState } from "react";
@@ -34,6 +35,7 @@ const ProtectedRoutes: React.FC = () => {
       <Route path="/" element={<Navigate to="/dashboard" />} />
       <Route path="*" element={<Navigate to="/" />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/magic-wizard" element={<CoverLetterWizard />} />
       <Route path="/resumes" element={<ResumeDashboard />} />
       <Route path="/resume/:id" element={<ResumeViewPage />} />
     </Routes>

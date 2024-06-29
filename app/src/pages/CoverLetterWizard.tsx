@@ -1,0 +1,144 @@
+// src/pages/CoverLetterWizard.tsx
+import JobAnalysisForm from "@/components/JobAnalysis/JobAnalysisForm";
+import JobAnalysisResult from "@/components/JobAnalysis/JobAnalysisResult";
+import ResumeAnalysisForm from "@/components/ResumeAnalysis/ResumeAnalysisForm";
+import ResumeAnalysisResult from "@/components/ResumeAnalysis/ResumeAnalysisResult";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  CandidateInfo,
+  CompanyInfo,
+  JobSummary,
+  RelevantExperience,
+} from "@/model";
+import { motion } from "framer-motion";
+import React, { useState } from "react";
+
+const steps = ["Job Analysis", "Resume Analysis", "Cover Letter Generation"];
+
+const CoverLetterWizard: React.FC = () => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [jobSummary, setJobSummary] = useState<JobSummary | null>(null);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+  const [relevantExperience, setRelevantExperience] =
+    useState<RelevantExperience | null>(null);
+  const [candidateInfo, setCandidateInfo] = useState<CandidateInfo | null>(
+    null
+  );
+
+  const handleJobAnalysisComplete = (
+    jobSummary: JobSummary,
+    companyInfo: CompanyInfo
+  ) => {
+    setJobSummary(jobSummary);
+    setCompanyInfo(companyInfo);
+  };
+
+  const handleJobAnalysisUpdate = (
+    updatedJobSummary: JobSummary,
+    updatedCompanyInfo: CompanyInfo
+  ) => {
+    setJobSummary(updatedJobSummary);
+    setCompanyInfo(updatedCompanyInfo);
+  };
+
+  const handleResumeAnalysisComplete = (
+    relevantExperience: RelevantExperience,
+    candidateInfo: CandidateInfo
+  ) => {
+    setRelevantExperience(relevantExperience);
+    setCandidateInfo(candidateInfo);
+  };
+
+  const handleResumeAnalysisUpdate = (
+    updatedRelevantExperience: RelevantExperience,
+    updatedCandidateInfo: CandidateInfo
+  ) => {
+    setRelevantExperience(updatedRelevantExperience);
+    setCandidateInfo(updatedCandidateInfo);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="container mx-auto p-4"
+    >
+      <Card>
+        <CardHeader>
+          <CardTitle>Cover Letter Generator</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-8">
+            {steps.map((step, index) => (
+              <span
+                key={step}
+                className={`${
+                  index === currentStep ? "font-bold" : "text-gray-400"
+                } ${index < steps.length - 1 ? "mr-4" : ""}`}
+              >
+                {step} {index < steps.length - 1 && "→"}
+              </span>
+            ))}
+          </div>
+
+          {currentStep === 0 && (
+            <>
+              <JobAnalysisForm onAnalysisComplete={handleJobAnalysisComplete} />
+              {jobSummary && companyInfo && (
+                <JobAnalysisResult
+                  initialJobSummary={jobSummary}
+                  initialCompanyInfo={companyInfo}
+                  onUpdate={handleJobAnalysisUpdate}
+                />
+              )}
+            </>
+          )}
+
+          {currentStep === 1 && jobSummary && companyInfo && (
+            <>
+              <ResumeAnalysisForm
+                jobSummary={jobSummary}
+                companyInfo={companyInfo}
+                onAnalysisComplete={handleResumeAnalysisComplete}
+              />
+              {relevantExperience && candidateInfo && (
+                <ResumeAnalysisResult
+                  initialRelevantExperience={relevantExperience}
+                  initialCandidateInfo={candidateInfo}
+                  onUpdate={handleResumeAnalysisUpdate}
+                />
+              )}
+            </>
+          )}
+
+          {currentStep === 2 && (
+            <p>Cover Letter Generation step will be implemented later.</p>
+          )}
+
+          <div className="mt-4 flex justify-between">
+            {currentStep > 0 && (
+              <Button onClick={() => setCurrentStep(currentStep - 1)}>
+                Previous
+              </Button>
+            )}
+            {currentStep < steps.length - 1 && (
+              <Button
+                onClick={() => setCurrentStep(currentStep + 1)}
+                disabled={
+                  (currentStep === 0 && (!jobSummary || !companyInfo)) ||
+                  (currentStep === 1 && (!relevantExperience || !candidateInfo))
+                }
+              >
+                Next
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
+
+export default CoverLetterWizard;

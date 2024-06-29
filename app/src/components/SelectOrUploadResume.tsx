@@ -1,4 +1,4 @@
-// src/components/Dashboard/ResumeSection.tsx
+// src/components/SelectOrUploadResume.tsx
 import ResumeUpload, { ResumeFormValues } from "@/components/ResumeUpload";
 import {
   Accordion,
