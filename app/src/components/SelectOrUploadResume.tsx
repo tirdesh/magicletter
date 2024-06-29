@@ -1,4 +1,3 @@
-// src/components/SelectOrUploadResume.tsx
 import ResumeUpload, { ResumeFormValues } from "@/components/ResumeUpload";
 import {
   Accordion,
@@ -27,7 +26,7 @@ const SelectOrUploadResume: React.FC<SelectOrUploadResumeProps> = ({
   onResumeSelect,
 }) => {
   const [selectedResume, setSelectedResume] = useState("");
-  const [resumes, setResumes] = useState<Resume[]>([]);
+  const [resumes, setResumes] = useState<Resume[] | null>(null);
   const [accordionValue, setAccordionValue] = useState("");
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -45,16 +44,17 @@ const SelectOrUploadResume: React.FC<SelectOrUploadResumeProps> = ({
         description: "Failed to fetch resumes.",
         variant: "destructive",
       });
+      setResumes([]);
     } finally {
       setIsLoadingResumes(false);
     }
   };
 
   useEffect(() => {
-    if (isSelectOpen && resumes.length === 0) {
+    if (isSelectOpen && resumes === null) {
       fetchResumes();
     }
-  }, [isSelectOpen, resumes.length]);
+  }, [isSelectOpen, resumes]);
 
   const handleSelectOpen = (open: boolean) => {
     setIsSelectOpen(open);
@@ -64,16 +64,19 @@ const SelectOrUploadResume: React.FC<SelectOrUploadResumeProps> = ({
   };
 
   const handleAccordionChange = (value: string) => {
-    setAccordionValue(value);
-    if (value !== "") {
-      setSelectedResume("");
-      onResumeSelect("");
+    if (!isSelectOpen) {
+      setAccordionValue(value);
+      if (value !== "") {
+        setSelectedResume("");
+        onResumeSelect("");
+      }
     }
   };
 
   const handleResumeSelect = (value: string) => {
     setSelectedResume(value);
     onResumeSelect(value);
+    setAccordionValue("");
   };
 
   const handleUpload = async (values: ResumeFormValues) => {
@@ -118,6 +121,10 @@ const SelectOrUploadResume: React.FC<SelectOrUploadResumeProps> = ({
               <SelectItem value="loading" disabled>
                 Loading resumes...
               </SelectItem>
+            ) : resumes === null ? (
+              <SelectItem value="no-resumes" disabled>
+                Click to load resumes
+              </SelectItem>
             ) : resumes.length === 0 ? (
               <SelectItem value="no-resumes" disabled>
                 No resumes available
@@ -139,7 +146,7 @@ const SelectOrUploadResume: React.FC<SelectOrUploadResumeProps> = ({
         onValueChange={handleAccordionChange}
       >
         <AccordionItem value="upload-resume">
-          <AccordionTrigger disabled={isUploading}>
+          <AccordionTrigger disabled={isSelectOpen || isUploading}>
             Upload a New Resume
           </AccordionTrigger>
           <AccordionContent>
