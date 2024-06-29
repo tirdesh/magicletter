@@ -39,6 +39,7 @@ export interface CoverLetterOptions {
   customInstructions: string;
   includeCallToAction: boolean;
   emphasizeUniqueness: boolean;
+  template: string;
 }
 
 export interface CandidateInfo {

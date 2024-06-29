@@ -1,6 +1,5 @@
 // src/pages/CoverLetterWizard.tsx
-import { CoverLetterForm } from "@/components/CoverLetter/CoverLetterForm";
-import CoverLetterResult from "@/components/CoverLetter/CoverLetterResult";
+import CoverLetter from "@/components/CoverLetter";
 import JobAnalysis from "@/components/JobAnalysis";
 import ResumeAnalysis from "@/components/ResumeAnalysis";
 import { Button } from "@/components/ui/button";
@@ -65,6 +64,10 @@ const CoverLetterWizard: React.FC = () => {
 
   const handleCoverLetterGenerated = (content: string) => {
     setGeneratedLetter({ content });
+  };
+
+  const handleCoverLetterUpdate = (updatedContent: string) => {
+    setGeneratedLetter({ content: updatedContent });
   };
 
   const canProceed = () => {
@@ -134,18 +137,15 @@ const CoverLetterWizard: React.FC = () => {
               companyInfo &&
               relevantExperience &&
               candidateInfo && (
-                <>
-                  <CoverLetterForm
-                    jobSummary={jobSummary}
-                    companyInfo={companyInfo}
-                    relevantExperience={relevantExperience}
-                    candidateInfo={candidateInfo}
-                    onGenerateComplete={handleCoverLetterGenerated}
-                  />
-                  {generatedLetter && (
-                    <CoverLetterResult generatedLetter={generatedLetter} />
-                  )}
-                </>
+                <CoverLetter
+                  jobSummary={jobSummary}
+                  companyInfo={companyInfo}
+                  relevantExperience={relevantExperience}
+                  candidateInfo={candidateInfo}
+                  initialGeneratedLetter={generatedLetter}
+                  onGenerate={handleCoverLetterGenerated}
+                  onUpdate={handleCoverLetterUpdate}
+                />
               )}
           </div>
 
