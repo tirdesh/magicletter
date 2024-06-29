@@ -7,13 +7,10 @@ import {
   CompanyInfo,
   JobSummary,
   RelevantExperience,
-  Resume,
 } from "@/model";
-import { addResume, getResumes } from "@/utils/firebaseFunctions";
 import { getResumeText } from "@/utils/resumeUtils/resumeText";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
-import { ResumeFormValues } from "../ResumeUpload";
 import { Button } from "../ui/button";
 
 interface ResumeAnalysisFormProps {
@@ -31,50 +28,8 @@ const ResumeAnalysisForm: React.FC<ResumeAnalysisFormProps> = ({
   onAnalysisComplete,
 }) => {
   const [selectedResume, setSelectedResume] = useState("");
-  const [resumes, setResumes] = useState<Resume[]>([]);
-  const [isLoadingResumes, setIsLoadingResumes] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
   const { analyzeResume, isAnalyzing, error } = useResumeAnalyzer();
-
-  const fetchResumes = async () => {
-    setIsLoadingResumes(true);
-    try {
-      const fetchedResumes = await getResumes();
-      setResumes(fetchedResumes);
-    } catch (error) {
-      console.error("Error fetching resumes:", error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch resumes.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoadingResumes(false);
-    }
-  };
-
-  const handleUpload = async (values: ResumeFormValues) => {
-    setIsUploading(true);
-    try {
-      const newResumeId = await addResume(values.file, values.label);
-      toast({
-        title: "Success",
-        description: "Resume uploaded successfully.",
-      });
-      await fetchResumes();
-      setSelectedResume(newResumeId);
-    } catch (error) {
-      console.error("Error uploading resume:", error);
-      toast({
-        title: "Error",
-        description: "Failed to upload resume.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
   const handleAnalyze = async () => {
     if (!selectedResume) {
@@ -111,19 +66,8 @@ const ResumeAnalysisForm: React.FC<ResumeAnalysisFormProps> = ({
       transition={{ duration: 0.5 }}
       className="space-y-4"
     >
-      <SelectOrUploadResume
-        selectedResume={selectedResume}
-        setSelectedResume={setSelectedResume}
-        resumes={resumes}
-        handleUpload={handleUpload}
-        isUploading={isUploading}
-        isLoadingResumes={isLoadingResumes}
-        fetchResumes={fetchResumes}
-      />
-      <Button
-        onClick={handleAnalyze}
-        disabled={isAnalyzing || !selectedResume || isUploading}
-      >
+      <SelectOrUploadResume onResumeSelect={setSelectedResume} />
+      <Button onClick={handleAnalyze} disabled={isAnalyzing || !selectedResume}>
         {isAnalyzing ? "Analyzing..." : "Analyze Resume"}
       </Button>
 
