@@ -1,8 +1,7 @@
 // src/services/fetchJobContent.ts
 
 async function fetchJobContent(url: string): Promise<string> {
-  const serverlessFunctionUrl =
-    "https://magicletter.vercel.app/api/fetch-job-content";
+  const serverlessFunctionUrl = "/api/fetch-job-content";
   const requestUrl = `${serverlessFunctionUrl}?url=${encodeURIComponent(url)}`;
 
   try {
