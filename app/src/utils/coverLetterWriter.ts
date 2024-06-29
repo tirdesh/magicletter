@@ -24,57 +24,54 @@ export class CoverLetterWriter {
     candidateInfo: CandidateInfo,
     options: CoverLetterOptions
   ): Promise<GeneratedCoverLetter> {
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
     const prompt = `
-      Generate a cover letter using the provided information:
-      1. Have a compelling introduction mentioning the specific position and company. In the body, address key requirements from the job description and how the candidate's experience matches them.Include a paragraph about why the candidate is particularly interested in this company.
-      2. Use a ${options.tone} tone.
-      3. Create ${options.paragraphs} paragraphs.
-      4. ${
-        options.includeCallToAction
-          ? "Conclude with a strong call to action."
-          : "Conclude with a summary of interest in the role."
-      }
-      5. Focus particularly on: ${options.focusAreas.join(", ")}.
-      6. ${
-        options.emphasizeUniqueness
-          ? "Emphasize what makes the candidate unique and stand out from other applicants."
-          : ""
-      }
-      7. Follow these custom instructions: ${options.customInstructions}
-      
-      Format the cover letter as follows:
-      [Candidate Name]
-      [Candidate City, State]
-      [Candidate Phone]
-      [Candidate Email]
-      
-      [Current Date]
-      
-      [Company Name]
-      [Company City, State]
-      
-      Dear Hiring Manager,
-      
-      [Paragraph x]
-      
-      Sincerely,
-      [Candidate Name]
-      
-    `;
+Generate a ${options.paragraphs}-paragraph cover letter with a ${
+      options.tone
+    } tone, focusing on ${options.focusAreas.join(", ")}.
+${options.includeCallToAction ? "Include a call to action." : ""}
+${
+  options.emphasizeUniqueness
+    ? "Emphasize the candidate's unique qualities."
+    : ""
+}
+${options.customInstructions}
+
+Use this format:
+${candidateInfo.fullName}
+${candidateInfo.city}, ${candidateInfo.state}
+${candidateInfo.phoneNumber}
+${candidateInfo.email}
+
+${currentDate}
+
+${companyInfo.name}
+${companyInfo.city}, ${companyInfo.state}
+
+Dear Hiring Manager,
+
+[Cover Letter Content]
+
+Sincerely,
+${candidateInfo.fullName}
+
+Return only the formatted cover letter.`;
 
     const context = JSON.stringify({
       jobSummary,
       companyInfo,
       relevantExperience,
-      candidateInfo,
       options,
     });
 
     const result = await this.aiService.processText(prompt, context);
-    const parsedResult = JSON.parse(result);
 
     return {
-      content: parsedResult.coverLetter,
+      content: result, // Now we're returning the raw text directly
     };
   }
 }

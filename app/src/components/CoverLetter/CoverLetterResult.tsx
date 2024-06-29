@@ -37,7 +37,7 @@ const CoverLetterResult: React.FC<CoverLetterResultProps> = ({
         value={content}
         onChange={(e) => setContent(e.target.value)}
         rows={20}
-        className="font-mono"
+        className="font-mono whitespace-pre-wrap"
       />
       <div className="space-x-2">
         <Button onClick={handleCopy}>Copy to Clipboard</Button>
