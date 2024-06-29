@@ -6,6 +6,7 @@ import ResumeAnalysisForm from "@/components/ResumeAnalysis/ResumeAnalysisForm";
 import ResumeAnalysisResult from "@/components/ResumeAnalysis/ResumeAnalysisResult";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import {
   CandidateInfo,
   CompanyInfo,
@@ -14,6 +15,7 @@ import {
   RelevantExperience,
 } from "@/model";
 import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useState } from "react";
 
 const steps = ["Job Analysis", "Resume Analysis", "Cover Letter Generation"];
@@ -66,91 +68,117 @@ const CoverLetterWizard: React.FC = () => {
     setGeneratedLetter({ content });
   };
 
+  const canProceed = () => {
+    if (currentStep === 0) return jobSummary && companyInfo;
+    if (currentStep === 1) return relevantExperience && candidateInfo;
+    return false;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto p-4"
+      className="container mx-auto p-4 max-w-4xl"
     >
-      <Card>
-        <CardHeader>
-          <CardTitle>Cover Letter Generator</CardTitle>
+      <Card className="shadow-lg">
+        <CardHeader className="bg-primary text-primary-foreground">
+          <CardTitle className="text-2xl">Cover Letter Wizard</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <div className="mb-8">
-            {steps.map((step, index) => (
-              <span
-                key={step}
-                className={`${
-                  index === currentStep ? "font-bold" : "text-gray-400"
-                } ${index < steps.length - 1 ? "mr-4" : ""}`}
-              >
-                {step} {index < steps.length - 1 && "→"}
-              </span>
-            ))}
+            <Progress
+              value={(currentStep + 1) * (100 / steps.length)}
+              className="h-2"
+            />
+            <div className="flex justify-between mt-2">
+              {steps.map((step, index) => (
+                <span
+                  key={step}
+                  className={`text-sm ${
+                    index === currentStep
+                      ? "font-bold text-primary"
+                      : index < currentStep
+                      ? "text-gray-600"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {step}
+                </span>
+              ))}
+            </div>
           </div>
 
-          {currentStep === 0 && (
-            <JobAnalysis
-              initialJobSummary={jobSummary}
-              initialCompanyInfo={companyInfo}
-              onAnalysisComplete={handleJobAnalysisComplete}
-              onUpdate={handleJobAnalysisUpdate}
-            />
-          )}
-
-          {currentStep === 1 && jobSummary && companyInfo && (
-            <>
-              <ResumeAnalysisForm
-                jobSummary={jobSummary}
-                companyInfo={companyInfo}
-                onAnalysisComplete={handleResumeAnalysisComplete}
+          <div className="min-h-[400px]">
+            {currentStep === 0 && (
+              <JobAnalysis
+                initialJobSummary={jobSummary}
+                initialCompanyInfo={companyInfo}
+                onAnalysisComplete={handleJobAnalysisComplete}
+                onUpdate={handleJobAnalysisUpdate}
               />
-              {relevantExperience && candidateInfo && (
-                <ResumeAnalysisResult
-                  initialRelevantExperience={relevantExperience}
-                  initialCandidateInfo={candidateInfo}
-                  onUpdate={handleResumeAnalysisUpdate}
-                />
-              )}
-            </>
-          )}
+            )}
 
-          {currentStep === 2 &&
-            jobSummary &&
-            companyInfo &&
-            relevantExperience &&
-            candidateInfo && (
+            {currentStep === 1 && jobSummary && companyInfo && (
               <>
-                <CoverLetterForm
+                <ResumeAnalysisForm
                   jobSummary={jobSummary}
                   companyInfo={companyInfo}
-                  relevantExperience={relevantExperience}
-                  candidateInfo={candidateInfo}
-                  onGenerateComplete={handleCoverLetterGenerated}
+                  onAnalysisComplete={handleResumeAnalysisComplete}
                 />
-                {generatedLetter && (
-                  <CoverLetterResult generatedLetter={generatedLetter} />
+                {relevantExperience && candidateInfo && (
+                  <ResumeAnalysisResult
+                    initialRelevantExperience={relevantExperience}
+                    initialCandidateInfo={candidateInfo}
+                    onUpdate={handleResumeAnalysisUpdate}
+                  />
                 )}
               </>
             )}
 
-          <div className="mt-4 flex justify-between">
-            {currentStep > 0 && (
-              <Button onClick={() => setCurrentStep(currentStep - 1)}>
-                Previous
-              </Button>
-            )}
-            {currentStep < steps.length - 1 && (
+            {currentStep === 2 &&
+              jobSummary &&
+              companyInfo &&
+              relevantExperience &&
+              candidateInfo && (
+                <>
+                  <CoverLetterForm
+                    jobSummary={jobSummary}
+                    companyInfo={companyInfo}
+                    relevantExperience={relevantExperience}
+                    candidateInfo={candidateInfo}
+                    onGenerateComplete={handleCoverLetterGenerated}
+                  />
+                  {generatedLetter && (
+                    <CoverLetterResult generatedLetter={generatedLetter} />
+                  )}
+                </>
+              )}
+          </div>
+
+          <div className="mt-8 flex justify-between items-center">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentStep(currentStep - 1)}
+              disabled={currentStep === 0}
+              className="flex items-center"
+            >
+              <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+            </Button>
+            <div className="text-sm text-gray-500">
+              Step {currentStep + 1} of {steps.length}
+            </div>
+            {currentStep < steps.length - 1 ? (
               <Button
                 onClick={() => setCurrentStep(currentStep + 1)}
-                disabled={
-                  (currentStep === 0 && (!jobSummary || !companyInfo)) ||
-                  (currentStep === 1 && (!relevantExperience || !candidateInfo))
-                }
+                disabled={!canProceed()}
+                className="flex items-center"
               >
-                Next
+                Next <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button className="flex items-center">
+                Finish <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             )}
           </div>
