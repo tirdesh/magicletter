@@ -1,4 +1,5 @@
 // src/pages/CoverLetterWizard.tsx
+
 import CoverLetter from "@/components/CoverLetter";
 import JobAnalysis from "@/components/JobAnalysis";
 import ResumeAnalysis from "@/components/ResumeAnalysis";
@@ -8,72 +9,77 @@ import { Progress } from "@/components/ui/progress";
 import {
   CandidateInfo,
   CompanyInfo,
-  GeneratedCoverLetter,
   JobSummary,
   RelevantExperience,
 } from "@/model";
+import {
+  setCandidateInfo,
+  setCompanyInfo,
+  setCurrentStep,
+  setGeneratedLetter,
+  setJobSummary,
+  setRelevantExperience,
+} from "@/redux/slices/wizardSlice";
+import { RootState } from "@/redux/store";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const steps = ["Job Analysis", "Resume Analysis", "Cover Letter Generation"];
 
 const CoverLetterWizard: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [jobSummary, setJobSummary] = useState<JobSummary | null>(null);
-  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
-  const [relevantExperience, setRelevantExperience] =
-    useState<RelevantExperience | null>(null);
-  const [candidateInfo, setCandidateInfo] = useState<CandidateInfo | null>(
-    null
-  );
-  const [generatedLetter, setGeneratedLetter] =
-    useState<GeneratedCoverLetter | null>(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const {
+    currentStep,
+    jobSummary,
+    companyInfo,
+    relevantExperience,
+    candidateInfo,
+    generatedLetter,
+  } = useSelector((state: RootState) => state.wizard);
 
   const handleJobAnalysisComplete = (
     newJobSummary: JobSummary,
     newCompanyInfo: CompanyInfo
   ) => {
-    setJobSummary(newJobSummary);
-    setCompanyInfo(newCompanyInfo);
-  };
-
-  const handleJobAnalysisUpdate = (
-    updatedJobSummary: JobSummary,
-    updatedCompanyInfo: CompanyInfo
-  ) => {
-    setJobSummary(updatedJobSummary);
-    setCompanyInfo(updatedCompanyInfo);
+    dispatch(setJobSummary(newJobSummary));
+    dispatch(setCompanyInfo(newCompanyInfo));
   };
 
   const handleResumeAnalysisComplete = (
     newRelevantExperience: RelevantExperience,
     newCandidateInfo: CandidateInfo
   ) => {
-    setRelevantExperience(newRelevantExperience);
-    setCandidateInfo(newCandidateInfo);
-  };
-
-  const handleResumeAnalysisUpdate = (
-    updatedRelevantExperience: RelevantExperience,
-    updatedCandidateInfo: CandidateInfo
-  ) => {
-    setRelevantExperience(updatedRelevantExperience);
-    setCandidateInfo(updatedCandidateInfo);
+    dispatch(setRelevantExperience(newRelevantExperience));
+    dispatch(setCandidateInfo(newCandidateInfo));
   };
 
   const handleCoverLetterGenerated = (content: string) => {
-    setGeneratedLetter({ content });
-  };
-
-  const handleCoverLetterUpdate = (updatedContent: string) => {
-    setGeneratedLetter({ content: updatedContent });
+    dispatch(setGeneratedLetter({ content }));
   };
 
   const canProceed = () => {
     if (currentStep === 0) return jobSummary && companyInfo;
     if (currentStep === 1) return relevantExperience && candidateInfo;
     return false;
+  };
+
+  const handleNext = () => {
+    if (currentStep < steps.length - 1) {
+      dispatch(setCurrentStep(currentStep + 1));
+    } else {
+      // Redirect to dashboard on finish
+      navigate("/app/dashboard");
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      dispatch(setCurrentStep(currentStep - 1));
+    }
   };
 
   return (
@@ -117,7 +123,7 @@ const CoverLetterWizard: React.FC = () => {
                 initialJobSummary={jobSummary}
                 initialCompanyInfo={companyInfo}
                 onAnalysisComplete={handleJobAnalysisComplete}
-                onUpdate={handleJobAnalysisUpdate}
+                onUpdate={handleJobAnalysisComplete}
               />
             )}
 
@@ -128,7 +134,7 @@ const CoverLetterWizard: React.FC = () => {
                 initialRelevantExperience={relevantExperience}
                 initialCandidateInfo={candidateInfo}
                 onAnalysisComplete={handleResumeAnalysisComplete}
-                onUpdate={handleResumeAnalysisUpdate}
+                onUpdate={handleResumeAnalysisComplete}
               />
             )}
 
@@ -144,7 +150,7 @@ const CoverLetterWizard: React.FC = () => {
                   candidateInfo={candidateInfo}
                   initialGeneratedLetter={generatedLetter}
                   onGenerate={handleCoverLetterGenerated}
-                  onUpdate={handleCoverLetterUpdate}
+                  onUpdate={handleCoverLetterGenerated}
                 />
               )}
           </div>
@@ -152,7 +158,7 @@ const CoverLetterWizard: React.FC = () => {
           <div className="mt-8 flex justify-between items-center">
             <Button
               variant="outline"
-              onClick={() => setCurrentStep(currentStep - 1)}
+              onClick={handlePrevious}
               disabled={currentStep === 0}
               className="flex items-center"
             >
@@ -161,19 +167,21 @@ const CoverLetterWizard: React.FC = () => {
             <div className="text-sm text-gray-500">
               Step {currentStep + 1} of {steps.length}
             </div>
-            {currentStep < steps.length - 1 ? (
-              <Button
-                onClick={() => setCurrentStep(currentStep + 1)}
-                disabled={!canProceed()}
-                className="flex items-center"
-              >
-                Next <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            ) : (
-              <Button className="flex items-center">
-                Finish <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            )}
+            <Button
+              onClick={handleNext}
+              disabled={!canProceed()}
+              className="flex items-center"
+            >
+              {currentStep < steps.length - 1 ? (
+                <>
+                  Next <ChevronRight className="ml-2 h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Finish <ChevronRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>
