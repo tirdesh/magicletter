@@ -9,9 +9,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { useJobAnalyzer } from "@/hooks/useJobAnalyzer";
 import { CompanyInfo, JobSummary } from "@/model";
 import fetchJobContent from "@/services/fetchJobContent";
@@ -36,7 +36,7 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
 }) => {
   const [jobLink, setJobLink] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isEditing, setIsEditing] = useState<string | null>(null);
+  const [editingSection, setEditingSection] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("job-summary");
   const { analyzeJob, isAnalyzing, error } = useJobAnalyzer();
   const [jobSummary, setJobSummary] = useState<JobSummary | null>(
@@ -67,19 +67,17 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
     }
   };
 
-  const handleEdit = (section: string) => {
-    setIsEditing(section);
-  };
+  const handleEdit = (section: string) => setEditingSection(section);
 
   const handleSave = () => {
-    setIsEditing(null);
+    setEditingSection(null);
     if (jobSummary && companyInfo) {
       onUpdate(jobSummary, companyInfo);
     }
   };
 
   const handleCancel = () => {
-    setIsEditing(null);
+    setEditingSection(null);
     setJobSummary(initialJobSummary || null);
     setCompanyInfo(initialCompanyInfo || null);
   };
@@ -88,63 +86,124 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
     items: string[],
     onChange: (newItems: string[]) => void
   ) => (
-    <ul className="space-y-2">
-      {items.map((item, index) => (
-        <li key={index} className="flex items-center">
-          <Input
-            value={item}
-            onChange={(e) => {
-              const newItems = [...items];
-              newItems[index] = e.target.value;
-              onChange(newItems);
-            }}
-            className="flex-grow"
-          />
+    <ScrollArea className="h-[200px] w-full">
+      <ul className="space-y-2">
+        {items.map((item, index) => (
+          <li key={index} className="flex items-center">
+            <Input
+              value={item}
+              onChange={(e) => {
+                const newItems = [...items];
+                newItems[index] = e.target.value;
+                onChange(newItems);
+              }}
+              className="flex-grow"
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onChange(items.filter((_, i) => i !== index))}
+            >
+              <Minus className="h-4 w-4" />
+            </Button>
+          </li>
+        ))}
+        <li>
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            onClick={() => {
-              const newItems = items.filter((_, i) => i !== index);
-              onChange(newItems);
-            }}
+            onClick={() => onChange([...items, ""])}
           >
-            <Minus className="h-4 w-4" />
+            <Plus className="h-4 w-4 mr-2" /> Add Item
           </Button>
         </li>
-      ))}
-      <li>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onChange([...items, ""])}
-        >
-          <Plus className="h-4 w-4 mr-2" /> Add Item
-        </Button>
-      </li>
-    </ul>
+      </ul>
+    </ScrollArea>
   );
 
   const renderSection = (title: string, content: React.ReactNode) => (
     <div className="mb-6 p-4 border rounded-lg">
       <div className="flex justify-between items-center mb-2">
         <h3 className="text-lg font-semibold">{title}</h3>
-        {isEditing === title ? (
-          <div>
-            <Button size="sm" onClick={handleSave} className="mr-2">
-              <Save className="h-4 w-4 mr-2" /> Save
+        <div className="flex space-x-2">
+          {editingSection === title ? (
+            <>
+              <Button size="sm" onClick={handleSave}>
+                <Save className="h-4 w-4 mr-2" /> Save
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleCancel}>
+                <X className="h-4 w-4 mr-2" /> Cancel
+              </Button>
+            </>
+          ) : (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => handleEdit(title)}
+            >
+              <Edit2 className="h-4 w-4 mr-2" /> Edit
             </Button>
-            <Button size="sm" variant="outline" onClick={handleCancel}>
-              <X className="h-4 w-4 mr-2" /> Cancel
-            </Button>
-          </div>
-        ) : (
-          <Button size="sm" variant="outline" onClick={() => handleEdit(title)}>
-            <Edit2 className="h-4 w-4 mr-2" /> Edit
-          </Button>
-        )}
+          )}
+        </div>
       </div>
       {content}
     </div>
+  );
+
+  const renderTabContent = (
+    data: JobSummary | CompanyInfo,
+    isJobSummary: boolean
+  ) => (
+    <>
+      {Object.entries(data).map(([key, value]) => {
+        const title = key.charAt(0).toUpperCase() + key.slice(1);
+        let content;
+        if (Array.isArray(value)) {
+          content =
+            editingSection === title ? (
+              renderEditableList(value, (newItems) =>
+                isJobSummary
+                  ? setJobSummary({
+                      ...jobSummary!,
+                      [key]: newItems,
+                    } as JobSummary)
+                  : setCompanyInfo({
+                      ...companyInfo!,
+                      [key]: newItems,
+                    } as CompanyInfo)
+              )
+            ) : (
+              <ul className="list-disc pl-5">
+                {value.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            );
+        } else {
+          content =
+            editingSection === title ? (
+              <Input
+                value={value}
+                onChange={(e) =>
+                  isJobSummary
+                    ? setJobSummary({
+                        ...jobSummary!,
+                        [key]: e.target.value,
+                      } as JobSummary)
+                    : setCompanyInfo({
+                        ...companyInfo!,
+                        [key]: e.target.value,
+                      } as CompanyInfo)
+                }
+                className="mt-1"
+              />
+            ) : (
+              <p>{value}</p>
+            );
+        }
+        return renderSection(title, content);
+      })}
+    </>
   );
 
   return (
@@ -157,7 +216,7 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4 mb-6">
           <div className="flex flex-col space-y-2">
             <Label htmlFor="job-link">Job Posting Link</Label>
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
               <Input
                 id="job-link"
                 value={jobLink}
@@ -165,7 +224,11 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
                 placeholder="Enter job posting URL"
                 className="flex-grow"
               />
-              <Button type="submit" disabled={isLoading || isAnalyzing}>
+              <Button
+                type="submit"
+                disabled={isLoading || isAnalyzing}
+                className="w-full sm:w-auto"
+              >
                 {isLoading || isAnalyzing ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -193,83 +256,10 @@ const JobAnalysis: React.FC<JobAnalysisProps> = ({
               <TabsTrigger value="company-info">Company Info</TabsTrigger>
             </TabsList>
             <TabsContent value="job-summary">
-              {renderSection(
-                "Summary",
-                isEditing === "Summary" ? (
-                  <Textarea
-                    value={jobSummary.summary}
-                    onChange={(e) =>
-                      setJobSummary({ ...jobSummary, summary: e.target.value })
-                    }
-                    className="mt-1 h-40"
-                  />
-                ) : (
-                  <p>{jobSummary.summary}</p>
-                )
-              )}
-              {renderSection(
-                "Key Highlights",
-                isEditing === "Key Highlights" ? (
-                  renderEditableList(jobSummary.highlights, (newHighlights) =>
-                    setJobSummary({ ...jobSummary, highlights: newHighlights })
-                  )
-                ) : (
-                  <ul className="list-disc pl-5">
-                    {jobSummary.highlights.map((item, index) => (
-                      <li key={index}>{item}</li>
-                    ))}
-                  </ul>
-                )
-              )}
-              {renderSection(
-                "Required Skills",
-                isEditing === "Required Skills" ? (
-                  renderEditableList(jobSummary.requiredSkills, (newSkills) =>
-                    setJobSummary({ ...jobSummary, requiredSkills: newSkills })
-                  )
-                ) : (
-                  <ul className="list-disc pl-5">
-                    {jobSummary.requiredSkills.map((skill, index) => (
-                      <li key={index}>{skill}</li>
-                    ))}
-                  </ul>
-                )
-              )}
-              {renderSection(
-                "Preferred Skills",
-                isEditing === "Preferred Skills" ? (
-                  renderEditableList(jobSummary.preferredSkills, (newSkills) =>
-                    setJobSummary({ ...jobSummary, preferredSkills: newSkills })
-                  )
-                ) : (
-                  <ul className="list-disc pl-5">
-                    {jobSummary.preferredSkills.map((skill, index) => (
-                      <li key={index}>{skill}</li>
-                    ))}
-                  </ul>
-                )
-              )}
+              {renderTabContent(jobSummary, true)}
             </TabsContent>
             <TabsContent value="company-info">
-              {Object.entries(companyInfo).map(([key, value]) =>
-                renderSection(
-                  key.charAt(0).toUpperCase() + key.slice(1),
-                  isEditing === key ? (
-                    <Input
-                      value={value}
-                      onChange={(e) =>
-                        setCompanyInfo({
-                          ...companyInfo,
-                          [key]: e.target.value,
-                        })
-                      }
-                      className="mt-1"
-                    />
-                  ) : (
-                    <p>{value}</p>
-                  )
-                )
-              )}
+              {renderTabContent(companyInfo, false)}
             </TabsContent>
           </Tabs>
         ) : null}
