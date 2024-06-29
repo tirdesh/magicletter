@@ -29,9 +29,10 @@ export default class AIService {
       const decoder = new TextDecoder();
       let finalResult = "";
 
-      const processStream = async (): Promise<void> => {
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
         const { done, value } = await reader.read();
-        if (done) return;
+        if (done) break;
 
         const chunk = decoder.decode(value);
         const lines = chunk.split("\n").filter((line) => line.trim() !== "");
@@ -45,8 +46,8 @@ export default class AIService {
                 // You can emit an event or update UI to show progress
                 break;
               case "result":
-                console.log("Final result:", event.data);
-                finalResult = event.data;
+                console.log("Partial result received:", event.data);
+                finalResult += event.data;
                 break;
               case "error":
                 console.error("Error:", event.data);
@@ -56,12 +57,9 @@ export default class AIService {
             console.error("Error parsing JSON:", error);
           }
         }
+      }
 
-        await processStream();
-      };
-
-      await processStream();
-
+      console.log("Final complete result:", finalResult);
       return finalResult;
     } catch (error) {
       console.error(`Error processing text with ${this.config.name}:`, error);
