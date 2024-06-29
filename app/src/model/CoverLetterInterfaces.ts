@@ -1,9 +1,6 @@
 // CoverLetterInterfaces.ts
 export interface GeneratedCoverLetter {
-  coverLetter: string;
-  importantNotes: string[];
-  matchScore: number;
-  suggestedImprovements: string[];
+  content: string;
 }
 
 export interface JobSummary {
@@ -38,7 +35,8 @@ export interface CoverLetterOptions {
     | "achievements"
     | "cultural fit"
   )[];
-  length: "short" | "medium" | "long";
+  paragraphs: number;
+  customInstructions: string;
   includeCallToAction: boolean;
   emphasizeUniqueness: boolean;
 }

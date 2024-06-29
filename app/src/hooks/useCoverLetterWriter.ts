@@ -1,13 +1,14 @@
-// src/hooks/useCoverLetterGenerator.ts
+// src/hooks/useCoverLetterWriter.ts
 import {
   CandidateInfo,
   CompanyInfo,
   CoverLetterOptions,
+  GeneratedCoverLetter,
   JobSummary,
   RelevantExperience,
 } from "@/model";
+import { CoverLetterWriter } from "@/utils/coverLetterWriter";
 import { useState } from "react";
-import { CoverLetterWriter } from "../utils/coverLetterWriter";
 
 export const useCoverLetterWriter = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -18,28 +19,20 @@ export const useCoverLetterWriter = () => {
     companyInfo: CompanyInfo,
     relevantExperience: RelevantExperience,
     candidateInfo: CandidateInfo,
-    userInstructions: string,
     options: CoverLetterOptions
-  ) => {
+  ): Promise<GeneratedCoverLetter> => {
     setIsGenerating(true);
     setError(null);
     try {
-      const generator = new CoverLetterWriter("openai"); // or 'claude'
-      const initialCoverLetter = await generator.generateInitialCoverLetter(
+      const writer = new CoverLetterWriter("openai"); // or 'claude'
+      const result = await writer.generateCoverLetter(
         jobSummary,
         companyInfo,
         relevantExperience,
-        userInstructions,
+        candidateInfo,
         options
       );
-      const finalCoverLetter = await generator.refineCoverLetter(
-        initialCoverLetter,
-        jobSummary,
-        options,
-        candidateInfo,
-        companyInfo
-      );
-      return finalCoverLetter;
+      return result;
     } catch (err) {
       setError("Failed to generate cover letter");
       throw err;

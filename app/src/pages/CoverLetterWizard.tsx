@@ -1,4 +1,6 @@
 // src/pages/CoverLetterWizard.tsx
+import { CoverLetterForm } from "@/components/CoverLetter/CoverLetterForm";
+import CoverLetterResult from "@/components/CoverLetter/CoverLetterResult";
 import JobAnalysisForm from "@/components/JobAnalysis/JobAnalysisForm";
 import JobAnalysisResult from "@/components/JobAnalysis/JobAnalysisResult";
 import ResumeAnalysisForm from "@/components/ResumeAnalysis/ResumeAnalysisForm";
@@ -8,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   CandidateInfo,
   CompanyInfo,
+  GeneratedCoverLetter,
   JobSummary,
   RelevantExperience,
 } from "@/model";
@@ -25,6 +28,8 @@ const CoverLetterWizard: React.FC = () => {
   const [candidateInfo, setCandidateInfo] = useState<CandidateInfo | null>(
     null
   );
+  const [generatedLetter, setGeneratedLetter] =
+    useState<GeneratedCoverLetter | null>(null);
 
   const handleJobAnalysisComplete = (
     jobSummary: JobSummary,
@@ -56,6 +61,10 @@ const CoverLetterWizard: React.FC = () => {
   ) => {
     setRelevantExperience(updatedRelevantExperience);
     setCandidateInfo(updatedCandidateInfo);
+  };
+
+  const handleCoverLetterGenerated = (content: string) => {
+    setGeneratedLetter({ content });
   };
 
   return (
@@ -113,9 +122,24 @@ const CoverLetterWizard: React.FC = () => {
             </>
           )}
 
-          {currentStep === 2 && (
-            <p>Cover Letter Generation step will be implemented later.</p>
-          )}
+          {currentStep === 2 &&
+            jobSummary &&
+            companyInfo &&
+            relevantExperience &&
+            candidateInfo && (
+              <>
+                <CoverLetterForm
+                  jobSummary={jobSummary}
+                  companyInfo={companyInfo}
+                  relevantExperience={relevantExperience}
+                  candidateInfo={candidateInfo}
+                  onGenerateComplete={handleCoverLetterGenerated}
+                />
+                {generatedLetter && (
+                  <CoverLetterResult generatedLetter={generatedLetter} />
+                )}
+              </>
+            )}
 
           <div className="mt-4 flex justify-between">
             {currentStep > 0 && (

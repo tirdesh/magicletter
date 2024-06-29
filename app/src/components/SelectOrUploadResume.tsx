@@ -1,11 +1,5 @@
 // src/components/SelectOrUploadResume.tsx
 import ResumeUpload, { ResumeFormValues } from "@/components/ResumeUpload";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -14,64 +8,90 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React from "react";
+import React, { useState } from "react";
 import { Resume } from "../model";
 
 interface SelectOrUploadResumeProps {
   selectedResume: string;
   setSelectedResume: (value: string) => void;
   resumes: Resume[];
-  accordionValue: string;
-  setAccordionValue: (value: string) => void;
   handleUpload: (values: ResumeFormValues) => Promise<void>;
   isUploading: boolean;
+  isLoadingResumes: boolean;
+  fetchResumes: () => Promise<void>;
 }
 
-const SelctOrUploadResume: React.FC<SelectOrUploadResumeProps> = ({
+const SelectOrUploadResume: React.FC<SelectOrUploadResumeProps> = ({
   selectedResume,
   setSelectedResume,
   resumes,
-  accordionValue,
-  setAccordionValue,
   handleUpload,
   isUploading,
+  isLoadingResumes,
+  fetchResumes,
 }) => {
+  const [isSelectOpen, setIsSelectOpen] = useState(false);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+
+  const handleSelectOpen = async () => {
+    if (!isSelectOpen && resumes.length === 0) {
+      await fetchResumes();
+    }
+    setIsSelectOpen(true);
+    setIsUploadOpen(false);
+  };
+
+  const handleUploadOpen = () => {
+    setIsUploadOpen(true);
+    setIsSelectOpen(false);
+  };
+
+  const handleUploadComplete = async (values: ResumeFormValues) => {
+    await handleUpload(values);
+    setIsUploadOpen(false);
+    setIsSelectOpen(true);
+  };
+
   return (
-    <>
+    <div className="space-y-4">
       <div>
-        <Label htmlFor="resume-select">Select Resume</Label>
+        <Label htmlFor="resume-select">Select or Upload Resume</Label>
         <Select
           value={selectedResume}
           onValueChange={setSelectedResume}
-          disabled={accordionValue !== ""}
+          onOpenChange={handleSelectOpen}
+          disabled={isUploadOpen}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select a resume" />
           </SelectTrigger>
           <SelectContent>
-            {resumes.map((resume) => (
-              <SelectItem key={resume.id} value={resume.id}>
-                {resume.label}
+            {isLoadingResumes ? (
+              <SelectItem value="loading" disabled>
+                Loading resumes...
               </SelectItem>
-            ))}
+            ) : resumes.length === 0 ? (
+              <SelectItem value="no-resumes" disabled>
+                No resumes available
+              </SelectItem>
+            ) : (
+              resumes.map((resume) => (
+                <SelectItem key={resume.id} value={resume.id}>
+                  {resume.label}
+                </SelectItem>
+              ))
+            )}
+            <SelectItem value="upload" onSelect={handleUploadOpen}>
+              Upload a new resume
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
-      <Accordion
-        type="single"
-        collapsible
-        value={accordionValue}
-        onValueChange={setAccordionValue}
-      >
-        <AccordionItem value="upload-resume">
-          <AccordionTrigger>Upload a New Resume</AccordionTrigger>
-          <AccordionContent>
-            <ResumeUpload onSubmit={handleUpload} isLoading={isUploading} />
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
-    </>
+      {isUploadOpen && (
+        <ResumeUpload onSubmit={handleUploadComplete} isLoading={isUploading} />
+      )}
+    </div>
   );
 };
 
-export default SelctOrUploadResume;
+export default SelectOrUploadResume;
