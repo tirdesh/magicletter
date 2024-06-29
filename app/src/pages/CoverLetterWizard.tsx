@@ -6,6 +6,7 @@ import ResumeAnalysis from "@/components/ResumeAnalysis";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   CandidateInfo,
   CompanyInfo,
@@ -87,14 +88,14 @@ const CoverLetterWizard: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto p-4 max-w-4xl"
+      className="container mx-auto p-4 max-w-4xl h-screen flex flex-col"
     >
-      <Card className="shadow-lg">
+      <Card className="shadow-lg flex-grow flex flex-col">
         <CardHeader className="bg-primary text-primary-foreground">
           <CardTitle className="text-2xl">Cover Letter Wizard</CardTitle>
         </CardHeader>
-        <CardContent className="p-6">
-          <div className="mb-8">
+        <CardContent className="p-6 flex-grow flex flex-col">
+          <div className="mb-4">
             <Progress
               value={(currentStep + 1) * (100 / steps.length)}
               className="h-2"
@@ -117,45 +118,47 @@ const CoverLetterWizard: React.FC = () => {
             </div>
           </div>
 
-          <div className="min-h-[400px]">
-            {currentStep === 0 && (
-              <JobAnalysis
-                initialJobSummary={jobSummary}
-                initialCompanyInfo={companyInfo}
-                onAnalysisComplete={handleJobAnalysisComplete}
-                onUpdate={handleJobAnalysisComplete}
-              />
-            )}
-
-            {currentStep === 1 && jobSummary && companyInfo && (
-              <ResumeAnalysis
-                jobSummary={jobSummary}
-                companyInfo={companyInfo}
-                initialRelevantExperience={relevantExperience}
-                initialCandidateInfo={candidateInfo}
-                onAnalysisComplete={handleResumeAnalysisComplete}
-                onUpdate={handleResumeAnalysisComplete}
-              />
-            )}
-
-            {currentStep === 2 &&
-              jobSummary &&
-              companyInfo &&
-              relevantExperience &&
-              candidateInfo && (
-                <CoverLetter
-                  jobSummary={jobSummary}
-                  companyInfo={companyInfo}
-                  relevantExperience={relevantExperience}
-                  candidateInfo={candidateInfo}
-                  initialGeneratedLetter={generatedLetter}
-                  onGenerate={handleCoverLetterGenerated}
-                  onUpdate={handleCoverLetterGenerated}
+          <ScrollArea className="flex-grow">
+            <div className="pr-4">
+              {" "}
+              {/* Add right padding for scrollbar */}
+              {currentStep === 0 && (
+                <JobAnalysis
+                  initialJobSummary={jobSummary}
+                  initialCompanyInfo={companyInfo}
+                  onAnalysisComplete={handleJobAnalysisComplete}
+                  onUpdate={handleJobAnalysisComplete}
                 />
               )}
-          </div>
+              {currentStep === 1 && jobSummary && companyInfo && (
+                <ResumeAnalysis
+                  jobSummary={jobSummary}
+                  companyInfo={companyInfo}
+                  initialRelevantExperience={relevantExperience}
+                  initialCandidateInfo={candidateInfo}
+                  onAnalysisComplete={handleResumeAnalysisComplete}
+                  onUpdate={handleResumeAnalysisComplete}
+                />
+              )}
+              {currentStep === 2 &&
+                jobSummary &&
+                companyInfo &&
+                relevantExperience &&
+                candidateInfo && (
+                  <CoverLetter
+                    jobSummary={jobSummary}
+                    companyInfo={companyInfo}
+                    relevantExperience={relevantExperience}
+                    candidateInfo={candidateInfo}
+                    initialGeneratedLetter={generatedLetter}
+                    onGenerate={handleCoverLetterGenerated}
+                    onUpdate={handleCoverLetterGenerated}
+                  />
+                )}
+            </div>
+          </ScrollArea>
 
-          <div className="mt-8 flex justify-between items-center">
+          <div className="mt-4 flex justify-between items-center">
             <Button
               variant="outline"
               onClick={handlePrevious}
