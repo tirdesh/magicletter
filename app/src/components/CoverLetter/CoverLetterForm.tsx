@@ -46,6 +46,7 @@ export const CoverLetterForm: React.FC<CoverLetterFormProps> = ({
     customInstructions: "",
     includeCallToAction: true,
     emphasizeUniqueness: false,
+    template: "",
   });
 
   const { generateCoverLetter, isGenerating, error } = useCoverLetterWriter();

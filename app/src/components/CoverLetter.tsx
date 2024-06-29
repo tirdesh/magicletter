@@ -81,7 +81,6 @@ const CoverLetter: React.FC<CoverLetterProps> = ({
     emphasizeUniqueness: false,
     template: defaultTemplate,
   });
-  const [template, setTemplate] = useState(defaultTemplate);
   const [generatedLetter, setGeneratedLetter] =
     useState<GeneratedCoverLetter | null>(initialGeneratedLetter);
   const [activeTab, setActiveTab] = useState("options");
@@ -124,7 +123,7 @@ const CoverLetter: React.FC<CoverLetterProps> = ({
         companyInfo,
         relevantExperience,
         candidateInfo,
-        { ...options, template }
+        options
       );
       setGeneratedLetter(result);
       onGenerate(result.content);
@@ -313,8 +312,8 @@ const CoverLetter: React.FC<CoverLetterProps> = ({
               <Label htmlFor="template">Cover Letter Template</Label>
               <Textarea
                 id="template"
-                value={template}
-                onChange={(e) => setTemplate(e.target.value)}
+                value={options.template}
+                onChange={(e) => handleOptionChange("template", e.target.value)}
                 rows={15}
                 className="font-mono"
               />
