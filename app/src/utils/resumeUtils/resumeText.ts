@@ -1,4 +1,4 @@
-// src/utils/firebaseFunctions.ts
+// src/utils/resumeUtils/resumeText.ts
 
 import { doc, getDoc } from "firebase/firestore";
 import mammoth from "mammoth";
