@@ -22,7 +22,7 @@ export class CoverLetterWriter {
     companyInfo: CompanyInfo,
     relevantExperience: RelevantExperience,
     candidateInfo: CandidateInfo,
-    options: CoverLetterOptions & { template: string }
+    options: CoverLetterOptions
   ): Promise<GeneratedCoverLetter> {
     const currentDate = new Date().toLocaleDateString("en-US", {
       year: "numeric",
@@ -42,13 +42,13 @@ ${
 }
 ${options.customInstructions}
 
-Use this template:
+Use the following template exactly, replacing only the placeholders:
 ${options.template}
 
 Replace [Cover Letter Content] with the generated paragraphs.
 Replace other placeholders with appropriate information from the provided context.
 
-Return only the formatted cover letter.`;
+Return only the formatted cover letter, maintaining the exact structure of the template.`;
 
     const context = JSON.stringify({
       jobSummary,
