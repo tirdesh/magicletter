@@ -1,8 +1,7 @@
 // src/pages/CoverLetterWizard.tsx
 import { CoverLetterForm } from "@/components/CoverLetter/CoverLetterForm";
 import CoverLetterResult from "@/components/CoverLetter/CoverLetterResult";
-import JobAnalysisForm from "@/components/JobAnalysis/JobAnalysisForm";
-import JobAnalysisResult from "@/components/JobAnalysis/JobAnalysisResult";
+import JobAnalysis from "@/components/JobAnalysis";
 import ResumeAnalysisForm from "@/components/ResumeAnalysis/ResumeAnalysisForm";
 import ResumeAnalysisResult from "@/components/ResumeAnalysis/ResumeAnalysisResult";
 import { Button } from "@/components/ui/button";
@@ -32,11 +31,11 @@ const CoverLetterWizard: React.FC = () => {
     useState<GeneratedCoverLetter | null>(null);
 
   const handleJobAnalysisComplete = (
-    jobSummary: JobSummary,
-    companyInfo: CompanyInfo
+    newJobSummary: JobSummary,
+    newCompanyInfo: CompanyInfo
   ) => {
-    setJobSummary(jobSummary);
-    setCompanyInfo(companyInfo);
+    setJobSummary(newJobSummary);
+    setCompanyInfo(newCompanyInfo);
   };
 
   const handleJobAnalysisUpdate = (
@@ -48,11 +47,11 @@ const CoverLetterWizard: React.FC = () => {
   };
 
   const handleResumeAnalysisComplete = (
-    relevantExperience: RelevantExperience,
-    candidateInfo: CandidateInfo
+    newRelevantExperience: RelevantExperience,
+    newCandidateInfo: CandidateInfo
   ) => {
-    setRelevantExperience(relevantExperience);
-    setCandidateInfo(candidateInfo);
+    setRelevantExperience(newRelevantExperience);
+    setCandidateInfo(newCandidateInfo);
   };
 
   const handleResumeAnalysisUpdate = (
@@ -93,16 +92,12 @@ const CoverLetterWizard: React.FC = () => {
           </div>
 
           {currentStep === 0 && (
-            <>
-              <JobAnalysisForm onAnalysisComplete={handleJobAnalysisComplete} />
-              {jobSummary && companyInfo && (
-                <JobAnalysisResult
-                  initialJobSummary={jobSummary}
-                  initialCompanyInfo={companyInfo}
-                  onUpdate={handleJobAnalysisUpdate}
-                />
-              )}
-            </>
+            <JobAnalysis
+              initialJobSummary={jobSummary}
+              initialCompanyInfo={companyInfo}
+              onAnalysisComplete={handleJobAnalysisComplete}
+              onUpdate={handleJobAnalysisUpdate}
+            />
           )}
 
           {currentStep === 1 && jobSummary && companyInfo && (
