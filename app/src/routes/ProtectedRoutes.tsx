@@ -1,31 +1,16 @@
+import { useAuth } from "@/hooks/useAuth";
 import CoverLetterWizard from "@/pages/CoverLetterWizard";
 import ResumeDashboard from "@/pages/ResumeDashboard";
 import ResumeViewPage from "@/pages/ResumeViewPage";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { auth } from "../firebase";
 import Dashboard from "../pages/Dashboard";
 
 const ProtectedRoutes: React.FC = () => {
-  const [user, setUser] = useState(auth.currentUser);
-  const [loading, setLoading] = useState(true); // State to manage loading state
+  const { currentUser } = useAuth();
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
-      setLoading(false); // Once user state is set, loading is complete
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  // While loading, show a spinner or loading message
-  if (loading) {
-    return <div>Loading...</div>; // Replace with your spinner component if needed
-  }
-
-  // After loading, redirect if no user is authenticated
-  if (!user) {
+  // If no user is authenticated, redirect to the login page
+  if (currentUser === null) {
     return <Navigate to="/" />;
   }
 
@@ -33,11 +18,11 @@ const ProtectedRoutes: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/dashboard" />} />
-      <Route path="*" element={<Navigate to="/" />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/magic-wizard" element={<CoverLetterWizard />} />
       <Route path="/resumes" element={<ResumeDashboard />} />
       <Route path="/resume/:id" element={<ResumeViewPage />} />
+      <Route path="*" element={<Navigate to="/dashboard" />} />
     </Routes>
   );
 };

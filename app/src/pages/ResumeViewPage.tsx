@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
-import { ParsedResume } from "@/model";
+import { AIProviderName, ParsedResume } from "@/model";
+import { RootState } from "@/redux/store";
 import parseResume from "@/utils/resumeUtils/resumeParser";
 import { ArrowLeft, Copy, Download } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getResumeText } from "../utils/resumeUtils/resumeText";
 
@@ -16,6 +18,9 @@ const ResumeViewPage: React.FC = () => {
   const [parsedResume, setParsedResume] = useState<ParsedResume | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+  const currentProvider = useSelector<RootState, AIProviderName>(
+    (state) => state.aiProvider.currentProvider
+  );
 
   useEffect(() => {
     const fetchResumeText = async () => {
@@ -24,7 +29,7 @@ const ResumeViewPage: React.FC = () => {
           console.log("Fetching resume text for ID:", id);
           const text = await getResumeText(id);
           setResumeText(text);
-          const parsed = await parseResume(text, "ai", "openai");
+          const parsed = await parseResume(text, "ai", currentProvider);
           console.log("Parsed resume:", parsed);
           setParsedResume(parsed);
         } catch (error) {
@@ -41,7 +46,7 @@ const ResumeViewPage: React.FC = () => {
     };
 
     fetchResumeText();
-  }, [id]);
+  }, [id, currentProvider]);
 
   const handleCopyText = () => {
     navigator.clipboard.writeText(resumeText);

@@ -3,6 +3,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import aiProviderReducer from "./slices/aiProviderSlice";
 import { tempSlice } from "./slices/tempSlice";
 import wizardReducer from "./slices/wizardSlice";
 
@@ -14,6 +15,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   temp: tempSlice.reducer,
+  aiProvider: aiProviderReducer,
   wizard: wizardReducer,
 });
 

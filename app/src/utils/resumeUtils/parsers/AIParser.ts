@@ -1,13 +1,13 @@
 // src/utils/parsers/AIParser.ts
 import { aiProviders } from "@/config/aiProviders";
-import { ParsedResume, ResumeSection } from "@/model";
+import { AIProviderName, ParsedResume, ResumeSection } from "@/model";
 import AIService from "@/services/AIService";
 import { BaseParser } from "./BaseParser";
 
 export class AIParser extends BaseParser {
-  private providerName: "openai" | "claude";
+  private providerName: AIProviderName;
 
-  constructor(text: string, providerName: "openai" | "claude") {
+  constructor(text: string, providerName: AIProviderName) {
     super(text);
     this.providerName = providerName;
   }

@@ -1,6 +1,7 @@
 // src/utils/CoverLetterWriter.ts
+import { AIProviderName } from "@/model";
 import AIService from "@/services/AIService";
-import { AIProviderName, getAIService } from "@/utils/getAIService";
+import { getAIService } from "@/utils/getAIService";
 import {
   CandidateInfo,
   CompanyInfo,
