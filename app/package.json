@@ -47,6 +47,7 @@
     "react-router-dom": "^6.23.1",
     "redux-persist": "^6.0.0",
     "select": "^1.1.2",
+    "simple-icons": "^12.4.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
     "yup": "^1.4.0",
