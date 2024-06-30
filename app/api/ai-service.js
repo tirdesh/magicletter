@@ -1,7 +1,6 @@
 // api/ai-service.js
 /* eslint-disable no-undef */
 import axios from "axios";
-import { CohereClient } from "cohere-ai";
 
 export const config = {
   runtime: "edge",
@@ -39,14 +38,14 @@ class OpenAIProvider extends BaseAIProvider {
   }
 }
 
-// Cohere Provider using SDK
-class CohereProvider {
+// Cohere Provider
+class CohereProvider extends BaseAIProvider {
   constructor(apiKey) {
-    this.cohere = new CohereClient({ token: apiKey });
+    super(apiKey, "https://api.cohere.ai/v1");
   }
 
   async processRequest(prompt, text) {
-    const response = await this.cohere.generate({
+    const response = await this.client.post("/generate", {
       model: "command",
       prompt: `${prompt}\n\nHuman: ${text}\nAI:`,
       max_tokens: 300,
@@ -55,7 +54,7 @@ class CohereProvider {
       stop_sequences: [],
       return_likelihoods: "NONE",
     });
-    return response.generations[0].text;
+    return response.data.generations[0].text;
   }
 }
 
@@ -76,7 +75,7 @@ class ClaudeProvider extends BaseAIProvider {
 }
 
 // Factory function to create AI providers
-export const createAIProvider = (provider, apiKey) => {
+const createAIProvider = (provider, apiKey) => {
   switch (provider) {
     case "openai":
       return new OpenAIProvider(apiKey);
@@ -132,7 +131,7 @@ export default async function handler(req) {
     return new Response(
       JSON.stringify({
         error: "Error processing request",
-        details: error instanceof Error ? error.message : "Unknown error",
+        details: error.message || "Unknown error",
       }),
       {
         status: 500,
