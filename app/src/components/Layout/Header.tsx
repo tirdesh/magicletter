@@ -1,12 +1,15 @@
 import { AIProviderMenu } from "@/components/MyUI/ai-provider-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ModeToggle } from "@/components/ui/mood-toggle";
+import { useAuth } from "@/hooks/useAuth";
 import React from "react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/image.png";
 import { auth } from "../../firebase";
 
 export const Header: React.FC = () => {
+  const { currentUser } = useAuth();
+
   const navItems = [
     { label: "Home", path: "/app/dashboard" },
     { label: "Manage Resumes", path: "/app/resumes" },
@@ -29,7 +32,7 @@ export const Header: React.FC = () => {
           </Link>
 
           {/* Navigation */}
-          {auth.currentUser && (
+          {currentUser && (
             <nav className="hidden md:flex space-x-6">
               {navItems.map((item) => (
                 <Link
@@ -46,7 +49,7 @@ export const Header: React.FC = () => {
           {/* Right side controls */}
           <div className="flex items-center space-x-4">
             <ModeToggle />
-            {auth.currentUser && (
+            {currentUser && (
               <>
                 <AIProviderMenu />
                 <button
