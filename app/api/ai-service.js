@@ -1,5 +1,6 @@
 // api/ai-service.js
 /* eslint-disable no-undef */
+// api/ai-service.js
 import axios from "axios";
 
 export const config = {
@@ -9,12 +10,13 @@ export const config = {
 // Base AI Provider
 class BaseAIProvider {
   constructor(apiKey, baseURL) {
-    this.client = axios.create({
-      baseURL,
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
+    this.apiKey = apiKey;
+    this.baseURL = baseURL;
+  }
+
+  createClient() {
+    return axios.create({
+      baseURL: this.baseURL,
       timeout: 30000, // 30 seconds timeout
     });
   }
@@ -27,13 +29,23 @@ class OpenAIProvider extends BaseAIProvider {
   }
 
   async processRequest(prompt, text) {
-    const response = await this.client.post("/chat/completions", {
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: prompt },
-        { role: "user", content: text },
-      ],
-    });
+    const client = this.createClient();
+    const response = await client.post(
+      "/chat/completions",
+      {
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: prompt },
+          { role: "user", content: text },
+        ],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response.data.choices[0].message.content;
   }
 }
@@ -45,11 +57,26 @@ class CohereProvider extends BaseAIProvider {
   }
 
   async processRequest(prompt, text) {
-    const response = await this.client.post("/generate", {
-      model: "command",
-      prompt: `${prompt}\n\nHuman: ${text}\nAI:`,
-      max_tokens: 300,
-    });
+    const client = this.createClient();
+    const response = await client.post(
+      "/generate",
+      {
+        model: "command",
+        prompt: `${prompt}\n\nHuman: ${text}\nAI:`,
+        max_tokens: 2048,
+        temperature: 0.7,
+        k: 0,
+        stop_sequences: [],
+        return_likelihoods: "NONE",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(response.data);
     return response.data.generations[0].text;
   }
 }
@@ -61,17 +88,27 @@ class ClaudeProvider extends BaseAIProvider {
   }
 
   async processRequest(prompt, text) {
-    const response = await this.client.post("/complete", {
-      model: "claude-2",
-      prompt: `${prompt}\n\nHuman: ${text}\nAssistant:`,
-      max_tokens_to_sample: 300,
-    });
+    const client = this.createClient();
+    const response = await client.post(
+      "/complete",
+      {
+        model: "claude-2",
+        prompt: `${prompt}\n\nHuman: ${text}\nAssistant:`,
+        max_tokens_to_sample: 300,
+      },
+      {
+        headers: {
+          "X-API-Key": this.apiKey,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response.data.completion;
   }
 }
 
 // Factory function to create AI providers
-export const createAIProvider = (provider, apiKey) => {
+const createAIProvider = (provider, apiKey) => {
   switch (provider) {
     case "openai":
       return new OpenAIProvider(apiKey);
@@ -117,7 +154,7 @@ export default async function handler(req) {
 
     const aiProvider = createAIProvider(provider, apiKey);
     const result = await aiProvider.processRequest(prompt, text);
-
+    console.log("Result:", result);
     return new Response(JSON.stringify({ result }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
@@ -127,7 +164,7 @@ export default async function handler(req) {
     return new Response(
       JSON.stringify({
         error: "Error processing request",
-        details: error instanceof Error ? error.message : "Unknown error",
+        details: error.message || "Unknown error",
       }),
       {
         status: 500,

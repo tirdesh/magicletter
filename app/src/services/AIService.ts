@@ -15,6 +15,9 @@ export default class AIService {
 
   async processText(prompt: string, text: string): Promise<string> {
     try {
+      console.log(
+        `Processing text with ${this.config.name}, ${prompt}, ${text}`
+      );
       const response = await axios.post("/api/ai-service", {
         provider: this.config.name,
         prompt,

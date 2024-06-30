@@ -136,7 +136,7 @@ const CoverLetter: React.FC<CoverLetterProps> = ({
       console.error("Error generating cover letter:", error);
       toast({
         title: "Error",
-        description: "Failed to generate cover letter. Please try again.",
+        description: `Failed to generate cover letter. Please try again. Error: ${error}`,
         variant: "destructive",
       });
     }

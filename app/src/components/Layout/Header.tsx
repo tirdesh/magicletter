@@ -1,14 +1,16 @@
 import { AIProviderMenu } from "@/components/MyUI/ai-provider-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/mood-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/image.png";
 import { auth } from "../../firebase";
 
 export const Header: React.FC = () => {
   const { currentUser } = useAuth();
+  const location = useLocation();
 
   const navItems = [
     { label: "Home", path: "/app/dashboard" },
@@ -38,7 +40,11 @@ export const Header: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                  className={`text-sm font-medium transition-colors ${
+                    location.pathname === item.path
+                      ? "text-primary font-semibold"
+                      : "text-muted-foreground hover:text-primary"
+                  }`}
                 >
                   {item.label}
                 </Link>
@@ -51,13 +57,17 @@ export const Header: React.FC = () => {
             <ModeToggle />
             {currentUser && (
               <>
-                <AIProviderMenu />
-                <button
+                <div className="relative group">
+                  <AIProviderMenu />
+                  <div className="absolute -bottom-1 left-0 w-full h-0.5 bg-primary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></div>
+                </div>
+                <Button
+                  variant="ghost"
                   onClick={() => auth.signOut()}
-                  className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors focus:outline-none"
+                  className="text-sm font-medium hover:bg-secondary"
                 >
                   Sign Out
-                </button>
+                </Button>
               </>
             )}
           </div>

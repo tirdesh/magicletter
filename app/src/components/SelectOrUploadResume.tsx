@@ -41,7 +41,7 @@ const SelectOrUploadResume: React.FC<SelectOrUploadResumeProps> = ({
       console.error("Error fetching resumes:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch resumes.",
+        description: `Failed to fetch resumes. Error: ${error}`,
         variant: "destructive",
       });
       setResumes([]);
@@ -95,7 +95,7 @@ const SelectOrUploadResume: React.FC<SelectOrUploadResumeProps> = ({
       console.error("Error uploading resume:", error);
       toast({
         title: "Error",
-        description: "Failed to upload resume.",
+        description: `Failed to upload resume. Error: ${error}`,
         variant: "destructive",
       });
     } finally {

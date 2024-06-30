@@ -14,5 +14,10 @@ export const aiProviders: { [key: string]: AIProviderConfig } = {
       maxTokens: 1000,
     },
   },
-  // Add other AI providers here
+  cohere: {
+    name: "cohere",
+    modelConfig: {
+      model: "command",
+    },
+  },
 };

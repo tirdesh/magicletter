@@ -35,7 +35,7 @@ export const useCoverLetterWriter = () => {
       );
       return result;
     } catch (err) {
-      setError("Failed to generate cover letter");
+      setError(`Failed to generate cover letter ${err}`);
       throw err;
     } finally {
       setIsGenerating(false);

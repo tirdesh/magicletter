@@ -26,7 +26,7 @@ export const useResumeAnalyzer = () => {
       const candidateInfo = await generator.extractCandidateInfo(resumeText);
       return { relevantExperience, candidateInfo };
     } catch (err) {
-      setError("Failed to analyze resume");
+      setError(`Failed to analyze resume ${err}`);
       throw err;
     } finally {
       setIsAnalyzing(false);
