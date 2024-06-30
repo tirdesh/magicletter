@@ -29,6 +29,7 @@ export class CoverLetterWriter {
       month: "long",
       day: "numeric",
     });
+
     const prompt = `
 Generate a ${options.paragraphs}-paragraph cover letter with a ${
       options.tone
@@ -41,37 +42,26 @@ ${
 }
 ${options.customInstructions}
 
-Use this format:
-${candidateInfo.fullName}
-${candidateInfo.city}, ${candidateInfo.state}
-${candidateInfo.phoneNumber}
-${candidateInfo.email}
+Use the following template exactly, replacing only the placeholders:
+${options.template}
 
-${currentDate}
+Replace [Cover Letter Content] with the generated paragraphs.
+Replace other placeholders with appropriate information from the provided context.
 
-${companyInfo.name}
-${companyInfo.city}, ${companyInfo.state}
-
-Dear Hiring Manager,
-
-[Cover Letter Content]
-
-Sincerely,
-${candidateInfo.fullName}
-
-Return only the formatted cover letter.`;
+Return only the formatted cover letter, maintaining the exact structure of the template.`;
 
     const context = JSON.stringify({
       jobSummary,
       companyInfo,
       relevantExperience,
-      options,
+      candidateInfo,
+      currentDate,
     });
 
     const result = await this.aiService.processText(prompt, context);
 
     return {
-      content: result, // Now we're returning the raw text directly
+      content: result,
     };
   }
 }

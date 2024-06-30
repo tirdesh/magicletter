@@ -1,70 +1,86 @@
 // src/pages/CoverLetterWizard.tsx
-import { CoverLetterForm } from "@/components/CoverLetter/CoverLetterForm";
-import CoverLetterResult from "@/components/CoverLetter/CoverLetterResult";
-import JobAnalysisForm from "@/components/JobAnalysis/JobAnalysisForm";
-import JobAnalysisResult from "@/components/JobAnalysis/JobAnalysisResult";
-import ResumeAnalysisForm from "@/components/ResumeAnalysis/ResumeAnalysisForm";
-import ResumeAnalysisResult from "@/components/ResumeAnalysis/ResumeAnalysisResult";
+
+import CoverLetter from "@/components/CoverLetter";
+import JobAnalysis from "@/components/JobAnalysis";
+import ResumeAnalysis from "@/components/ResumeAnalysis";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   CandidateInfo,
   CompanyInfo,
-  GeneratedCoverLetter,
   JobSummary,
   RelevantExperience,
 } from "@/model";
+import {
+  setCandidateInfo,
+  setCompanyInfo,
+  setCurrentStep,
+  setGeneratedLetter,
+  setJobSummary,
+  setRelevantExperience,
+} from "@/redux/slices/wizardSlice";
+import { RootState } from "@/redux/store";
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const steps = ["Job Analysis", "Resume Analysis", "Cover Letter Generation"];
 
 const CoverLetterWizard: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [jobSummary, setJobSummary] = useState<JobSummary | null>(null);
-  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
-  const [relevantExperience, setRelevantExperience] =
-    useState<RelevantExperience | null>(null);
-  const [candidateInfo, setCandidateInfo] = useState<CandidateInfo | null>(
-    null
-  );
-  const [generatedLetter, setGeneratedLetter] =
-    useState<GeneratedCoverLetter | null>(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const {
+    currentStep,
+    jobSummary,
+    companyInfo,
+    relevantExperience,
+    candidateInfo,
+    generatedLetter,
+  } = useSelector((state: RootState) => state.wizard);
 
   const handleJobAnalysisComplete = (
-    jobSummary: JobSummary,
-    companyInfo: CompanyInfo
+    newJobSummary: JobSummary,
+    newCompanyInfo: CompanyInfo
   ) => {
-    setJobSummary(jobSummary);
-    setCompanyInfo(companyInfo);
-  };
-
-  const handleJobAnalysisUpdate = (
-    updatedJobSummary: JobSummary,
-    updatedCompanyInfo: CompanyInfo
-  ) => {
-    setJobSummary(updatedJobSummary);
-    setCompanyInfo(updatedCompanyInfo);
+    dispatch(setJobSummary(newJobSummary));
+    dispatch(setCompanyInfo(newCompanyInfo));
   };
 
   const handleResumeAnalysisComplete = (
-    relevantExperience: RelevantExperience,
-    candidateInfo: CandidateInfo
+    newRelevantExperience: RelevantExperience,
+    newCandidateInfo: CandidateInfo
   ) => {
-    setRelevantExperience(relevantExperience);
-    setCandidateInfo(candidateInfo);
-  };
-
-  const handleResumeAnalysisUpdate = (
-    updatedRelevantExperience: RelevantExperience,
-    updatedCandidateInfo: CandidateInfo
-  ) => {
-    setRelevantExperience(updatedRelevantExperience);
-    setCandidateInfo(updatedCandidateInfo);
+    dispatch(setRelevantExperience(newRelevantExperience));
+    dispatch(setCandidateInfo(newCandidateInfo));
   };
 
   const handleCoverLetterGenerated = (content: string) => {
-    setGeneratedLetter({ content });
+    dispatch(setGeneratedLetter({ content }));
+  };
+
+  const canProceed = () => {
+    if (currentStep === 0) return jobSummary && companyInfo;
+    if (currentStep === 1) return relevantExperience && candidateInfo;
+    return false;
+  };
+
+  const handleNext = () => {
+    if (currentStep < steps.length - 1) {
+      dispatch(setCurrentStep(currentStep + 1));
+    } else {
+      // Redirect to dashboard on finish
+      navigate("/app/dashboard");
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      dispatch(setCurrentStep(currentStep - 1));
+    }
   };
 
   return (
@@ -72,92 +88,103 @@ const CoverLetterWizard: React.FC = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto p-4"
+      className="container mx-auto p-4 max-w-4xl h-screen flex flex-col"
     >
-      <Card>
-        <CardHeader>
-          <CardTitle>Cover Letter Generator</CardTitle>
+      <Card className="shadow-lg flex-grow flex flex-col">
+        <CardHeader className="bg-primary text-primary-foreground">
+          <CardTitle className="text-2xl">Cover Letter Wizard</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="mb-8">
-            {steps.map((step, index) => (
-              <span
-                key={step}
-                className={`${
-                  index === currentStep ? "font-bold" : "text-gray-400"
-                } ${index < steps.length - 1 ? "mr-4" : ""}`}
-              >
-                {step} {index < steps.length - 1 && "→"}
-              </span>
-            ))}
+        <CardContent className="p-6 flex-grow flex flex-col">
+          <div className="mb-4">
+            <Progress
+              value={(currentStep + 1) * (100 / steps.length)}
+              className="h-2"
+            />
+            <div className="flex justify-between mt-2">
+              {steps.map((step, index) => (
+                <span
+                  key={step}
+                  className={`text-sm ${
+                    index === currentStep
+                      ? "font-bold text-primary"
+                      : index < currentStep
+                      ? "text-gray-600"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {step}
+                </span>
+              ))}
+            </div>
           </div>
 
-          {currentStep === 0 && (
-            <>
-              <JobAnalysisForm onAnalysisComplete={handleJobAnalysisComplete} />
-              {jobSummary && companyInfo && (
-                <JobAnalysisResult
+          <ScrollArea className="flex-grow">
+            <div className="pr-4">
+              {" "}
+              {/* Add right padding for scrollbar */}
+              {currentStep === 0 && (
+                <JobAnalysis
                   initialJobSummary={jobSummary}
                   initialCompanyInfo={companyInfo}
-                  onUpdate={handleJobAnalysisUpdate}
+                  onAnalysisComplete={handleJobAnalysisComplete}
+                  onUpdate={handleJobAnalysisComplete}
                 />
               )}
-            </>
-          )}
-
-          {currentStep === 1 && jobSummary && companyInfo && (
-            <>
-              <ResumeAnalysisForm
-                jobSummary={jobSummary}
-                companyInfo={companyInfo}
-                onAnalysisComplete={handleResumeAnalysisComplete}
-              />
-              {relevantExperience && candidateInfo && (
-                <ResumeAnalysisResult
-                  initialRelevantExperience={relevantExperience}
-                  initialCandidateInfo={candidateInfo}
-                  onUpdate={handleResumeAnalysisUpdate}
-                />
-              )}
-            </>
-          )}
-
-          {currentStep === 2 &&
-            jobSummary &&
-            companyInfo &&
-            relevantExperience &&
-            candidateInfo && (
-              <>
-                <CoverLetterForm
+              {currentStep === 1 && jobSummary && companyInfo && (
+                <ResumeAnalysis
                   jobSummary={jobSummary}
                   companyInfo={companyInfo}
-                  relevantExperience={relevantExperience}
-                  candidateInfo={candidateInfo}
-                  onGenerateComplete={handleCoverLetterGenerated}
+                  initialRelevantExperience={relevantExperience}
+                  initialCandidateInfo={candidateInfo}
+                  onAnalysisComplete={handleResumeAnalysisComplete}
+                  onUpdate={handleResumeAnalysisComplete}
                 />
-                {generatedLetter && (
-                  <CoverLetterResult generatedLetter={generatedLetter} />
+              )}
+              {currentStep === 2 &&
+                jobSummary &&
+                companyInfo &&
+                relevantExperience &&
+                candidateInfo && (
+                  <CoverLetter
+                    jobSummary={jobSummary}
+                    companyInfo={companyInfo}
+                    relevantExperience={relevantExperience}
+                    candidateInfo={candidateInfo}
+                    initialGeneratedLetter={generatedLetter}
+                    onGenerate={handleCoverLetterGenerated}
+                    onUpdate={handleCoverLetterGenerated}
+                  />
                 )}
-              </>
-            )}
+            </div>
+          </ScrollArea>
 
-          <div className="mt-4 flex justify-between">
-            {currentStep > 0 && (
-              <Button onClick={() => setCurrentStep(currentStep - 1)}>
-                Previous
-              </Button>
-            )}
-            {currentStep < steps.length - 1 && (
-              <Button
-                onClick={() => setCurrentStep(currentStep + 1)}
-                disabled={
-                  (currentStep === 0 && (!jobSummary || !companyInfo)) ||
-                  (currentStep === 1 && (!relevantExperience || !candidateInfo))
-                }
-              >
-                Next
-              </Button>
-            )}
+          <div className="mt-4 flex justify-between items-center">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentStep === 0}
+              className="flex items-center"
+            >
+              <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+            </Button>
+            <div className="text-sm text-gray-500">
+              Step {currentStep + 1} of {steps.length}
+            </div>
+            <Button
+              onClick={handleNext}
+              disabled={!canProceed()}
+              className="flex items-center"
+            >
+              {currentStep < steps.length - 1 ? (
+                <>
+                  Next <ChevronRight className="ml-2 h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  Finish <ChevronRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>
