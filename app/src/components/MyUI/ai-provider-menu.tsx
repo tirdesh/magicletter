@@ -1,4 +1,4 @@
-import cohereIcon from "@/assets/cohere.png";
+import cohereIcon from "@/assets/Cohere.png";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

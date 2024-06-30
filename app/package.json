@@ -34,6 +34,7 @@
     "chrome-aws-lambda": "^9.1.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "cohere-ai": "^7.10.6",
     "compromise": "^14.13.0",
     "firebase": "^10.12.2",
     "framer-motion": "^11.2.12",
