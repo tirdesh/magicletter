@@ -265,43 +265,37 @@ const Dashboard: React.FC = () => {
                     <h2 className="text-2xl font-semibold mb-4">
                       Technology Stack
                     </h2>
-                    <Tabs
-                      defaultValue={techStacks[0].category}
-                      orientation="vertical"
-                      className="flex"
-                    >
-                      <ScrollArea className="h-[400px] w-[200px] mr-4">
-                        <TabsList className="flex flex-col w-full">
-                          {techStacks.map((stack) => (
-                            <TabsTrigger
-                              key={stack.category}
-                              value={stack.category}
-                              className="mb-2 justify-start"
-                            >
-                              {stack.category}
-                            </TabsTrigger>
-                          ))}
-                        </TabsList>
-                      </ScrollArea>
-                      <div className="flex-grow">
-                        {techStacks.map((stack) => (
-                          <TabsContent
-                            key={stack.category}
-                            value={stack.category}
-                          >
-                            <Card>
-                              <CardHeader>
-                                <CardTitle>{stack.category}</CardTitle>
-                              </CardHeader>
-                              <CardContent>
+                    <Card>
+                      <CardContent className="p-0">
+                        <Tabs
+                          defaultValue={techStacks[0].category}
+                          className="flex"
+                        >
+                          <TabsList className="flex flex-col w-1/3 h-auto border-r">
+                            {techStacks.map((stack) => (
+                              <TabsTrigger
+                                key={stack.category}
+                                value={stack.category}
+                                className="justify-start px-4 py-2 text-left"
+                              >
+                                {stack.category}
+                              </TabsTrigger>
+                            ))}
+                          </TabsList>
+                          <div className="w-2/3 p-4">
+                            {techStacks.map((stack) => (
+                              <TabsContent
+                                key={stack.category}
+                                value={stack.category}
+                              >
                                 <div className="space-y-4">
                                   {stack.techs.map((tech) => (
                                     <div
                                       key={tech.name}
                                       className="flex items-start"
                                     >
-                                      <div className="flex-shrink-0 w-6 h-6 mr-4">
-                                        <tech.icon />
+                                      <div className="flex-shrink-0 w-6 h-6 mr-4 mt-1">
+                                        <tech.icon className="w-full h-full" />
                                       </div>
                                       <div>
                                         <h3 className="text-lg font-semibold">
@@ -314,12 +308,12 @@ const Dashboard: React.FC = () => {
                                     </div>
                                   ))}
                                 </div>
-                              </CardContent>
-                            </Card>
-                          </TabsContent>
-                        ))}
-                      </div>
-                    </Tabs>
+                              </TabsContent>
+                            ))}
+                          </div>
+                        </Tabs>
+                      </CardContent>
+                    </Card>
                   </section>
                 </div>
               </ScrollArea>
