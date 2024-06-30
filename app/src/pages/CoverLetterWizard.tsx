@@ -1,12 +1,25 @@
 // src/pages/CoverLetterWizard.tsx
 
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+
 import CoverLetter from "@/components/CoverLetter";
 import JobAnalysis from "@/components/JobAnalysis";
 import ResumeAnalysis from "@/components/ResumeAnalysis";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
 import {
   CandidateInfo,
   CompanyInfo,
@@ -22,11 +35,6 @@ import {
   setRelevantExperience,
 } from "@/redux/slices/wizardSlice";
 import { RootState } from "@/redux/store";
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
 
 const steps = ["Job Analysis", "Resume Analysis", "Cover Letter Generation"];
 
@@ -84,44 +92,44 @@ const CoverLetterWizard: React.FC = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="container mx-auto p-4 max-w-4xl h-screen flex flex-col"
-    >
-      <Card className="shadow-lg flex-grow flex flex-col">
-        <CardHeader className="bg-primary text-primary-foreground">
-          <CardTitle className="text-2xl">Cover Letter Wizard</CardTitle>
-        </CardHeader>
-        <CardContent className="p-6 flex-grow flex flex-col">
-          <div className="mb-4">
-            <Progress
-              value={(currentStep + 1) * (100 / steps.length)}
-              className="h-2"
-            />
-            <div className="flex justify-between mt-2">
-              {steps.map((step, index) => (
-                <span
-                  key={step}
-                  className={`text-sm ${
-                    index === currentStep
-                      ? "font-bold text-primary"
-                      : index < currentStep
-                      ? "text-gray-600"
-                      : "text-gray-400"
-                  }`}
-                >
-                  {step}
-                </span>
-              ))}
+    <div className="container mx-auto px-4 py-8 bg-background min-h-screen">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="w-full max-w-4xl mx-auto shadow-md">
+          <CardHeader className="bg-primary/10 dark:bg-primary/20">
+            <CardTitle className="text-2xl font-bold text-primary">
+              Cover Letter Wizard
+            </CardTitle>
+            <CardDescription>Create your perfect cover letter</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="mb-4">
+              <Progress
+                value={(currentStep + 1) * (100 / steps.length)}
+                className="h-2"
+              />
+              <div className="flex justify-between mt-2">
+                {steps.map((step, index) => (
+                  <span
+                    key={step}
+                    className={`text-sm ${
+                      index === currentStep
+                        ? "font-bold text-primary"
+                        : index < currentStep
+                        ? "text-gray-600"
+                        : "text-gray-400"
+                    }`}
+                  >
+                    {step}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <ScrollArea className="flex-grow">
-            <div className="pr-4">
-              {" "}
-              {/* Add right padding for scrollbar */}
+            <ScrollArea className="h-[calc(100vh-24rem)] pr-4">
               {currentStep === 0 && (
                 <JobAnalysis
                   initialJobSummary={jobSummary}
@@ -155,40 +163,40 @@ const CoverLetterWizard: React.FC = () => {
                     onUpdate={handleCoverLetterGenerated}
                   />
                 )}
-            </div>
-          </ScrollArea>
+            </ScrollArea>
 
-          <div className="mt-4 flex justify-between items-center">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 0}
-              className="flex items-center"
-            >
-              <ChevronLeft className="mr-2 h-4 w-4" /> Previous
-            </Button>
-            <div className="text-sm text-gray-500">
-              Step {currentStep + 1} of {steps.length}
+            <div className="mt-4 flex justify-between items-center">
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentStep === 0}
+                className="flex items-center"
+              >
+                <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+              </Button>
+              <div className="text-sm text-gray-500">
+                Step {currentStep + 1} of {steps.length}
+              </div>
+              <Button
+                onClick={handleNext}
+                disabled={!canProceed()}
+                className="flex items-center"
+              >
+                {currentStep < steps.length - 1 ? (
+                  <>
+                    Next <ChevronRight className="ml-2 h-4 w-4" />
+                  </>
+                ) : (
+                  <>
+                    Finish <ChevronRight className="ml-2 h-4 w-4" />
+                  </>
+                )}
+              </Button>
             </div>
-            <Button
-              onClick={handleNext}
-              disabled={!canProceed()}
-              className="flex items-center"
-            >
-              {currentStep < steps.length - 1 ? (
-                <>
-                  Next <ChevronRight className="ml-2 h-4 w-4" />
-                </>
-              ) : (
-                <>
-                  Finish <ChevronRight className="ml-2 h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
   );
 };
 
