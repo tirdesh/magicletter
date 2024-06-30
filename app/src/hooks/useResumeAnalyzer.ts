@@ -1,4 +1,5 @@
 // src/hooks/useResumeAnalyzer.ts
+import store from "@/redux/store";
 import { useState } from "react";
 import { CompanyInfo, JobSummary } from "../model";
 import { ResumeAnalyzer } from "./../utils/resumeAnalyzer";
@@ -6,6 +7,7 @@ import { ResumeAnalyzer } from "./../utils/resumeAnalyzer";
 export const useResumeAnalyzer = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const currentProvider = store.getState().aiProvider.currentProvider;
 
   const analyzeResume = async (
     resumeText: string,
@@ -15,7 +17,7 @@ export const useResumeAnalyzer = () => {
     setIsAnalyzing(true);
     setError(null);
     try {
-      const generator = new ResumeAnalyzer("openai"); // or 'claude'
+      const generator = new ResumeAnalyzer(currentProvider);
       const relevantExperience = await generator.fetchRelevantExperience(
         resumeText,
         jobSummary,

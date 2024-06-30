@@ -1,12 +1,12 @@
 // src/utils/resumeParser.ts
-import { ParsedResume } from "@/model";
+import { AIProviderName, ParsedResume } from "@/model";
 import { AIParser } from "./parsers/AIParser";
 import { NLPParser } from "./parsers/NLPParser";
 
 async function parseResume(
   resumeText: string,
   method: "nlp" | "ai",
-  providerName?: "openai" | "claude"
+  providerName?: AIProviderName
 ): Promise<ParsedResume> {
   console.log(resumeText);
   try {

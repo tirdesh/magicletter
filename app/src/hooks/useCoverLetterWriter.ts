@@ -7,12 +7,13 @@ import {
   JobSummary,
   RelevantExperience,
 } from "@/model";
+import store from "@/redux/store";
 import { CoverLetterWriter } from "@/utils/coverLetterWriter";
 import { useState } from "react";
-
 export const useCoverLetterWriter = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const currentProvider = store.getState().aiProvider.currentProvider;
 
   const generateCoverLetter = async (
     jobSummary: JobSummary,
@@ -24,7 +25,7 @@ export const useCoverLetterWriter = () => {
     setIsGenerating(true);
     setError(null);
     try {
-      const writer = new CoverLetterWriter("openai"); // or 'claude'
+      const writer = new CoverLetterWriter(currentProvider);
       const result = await writer.generateCoverLetter(
         jobSummary,
         companyInfo,

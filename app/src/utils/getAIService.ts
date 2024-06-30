@@ -1,9 +1,8 @@
 // src/utils/getAIService.ts
 
 import { aiProviders } from "@/config/aiProviders";
+import { AIProviderName } from "@/model";
 import AIService from "@/services/AIService";
-
-export type AIProviderName = "openai" | "claude";
 
 export function getAIService(providerName: AIProviderName): AIService {
   const providerConfig = aiProviders[providerName];
