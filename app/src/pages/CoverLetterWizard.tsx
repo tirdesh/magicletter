@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -27,6 +27,8 @@ import {
   RelevantExperience,
 } from "@/model";
 import {
+  initializeWizard,
+  resetWizard,
   setCandidateInfo,
   setCompanyInfo,
   setCurrentStep,
@@ -48,7 +50,23 @@ const CoverLetterWizard: React.FC = () => {
     relevantExperience,
     candidateInfo,
     generatedLetter,
+    isInitialized,
   } = useSelector((state: RootState) => state.wizard);
+
+  // Reset wizard if not initialized
+  useEffect(() => {
+    if (!isInitialized) {
+      dispatch(resetWizard());
+      dispatch(initializeWizard());
+    }
+  }, [dispatch, isInitialized]);
+
+  // Reset wizard when component unmounts
+  useEffect(() => {
+    return () => {
+      dispatch(resetWizard());
+    };
+  }, [dispatch]);
 
   const handleJobAnalysisComplete = (
     newJobSummary: JobSummary,

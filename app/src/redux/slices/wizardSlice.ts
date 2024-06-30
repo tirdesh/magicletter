@@ -7,8 +7,17 @@ import {
   JobSummary,
   RelevantExperience,
 } from "@/model";
-import { WizardState } from "@/types/wizard";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+
+interface WizardState {
+  currentStep: number;
+  jobSummary: JobSummary | null;
+  companyInfo: CompanyInfo | null;
+  relevantExperience: RelevantExperience | null;
+  candidateInfo: CandidateInfo | null;
+  generatedLetter: GeneratedCoverLetter | null;
+  isInitialized: boolean;
+}
 
 const initialState: WizardState = {
   currentStep: 0,
@@ -17,6 +26,7 @@ const initialState: WizardState = {
   relevantExperience: null,
   candidateInfo: null,
   generatedLetter: null,
+  isInitialized: false,
 };
 
 export const wizardSlice = createSlice({
@@ -47,6 +57,9 @@ export const wizardSlice = createSlice({
     ) => {
       state.generatedLetter = action.payload;
     },
+    initializeWizard: (state) => {
+      state.isInitialized = true;
+    },
     resetWizard: (state) => {
       Object.assign(state, initialState);
     },
@@ -60,6 +73,7 @@ export const {
   setRelevantExperience,
   setCandidateInfo,
   setGeneratedLetter,
+  initializeWizard,
   resetWizard,
 } = wizardSlice.actions;
 

@@ -10,8 +10,35 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { Briefcase, FileText, Rocket, Zap } from "lucide-react";
 import React from "react";
-import * as SimpleIcons from "simple-icons";
-import CohereIcon from "../assets/Cohere.svg";
+import { IconType } from "react-icons";
+import {
+  SiAnthropic,
+  SiAxios,
+  SiCheerio,
+  SiFirebase,
+  SiFramer,
+  SiOpenai,
+  SiPerplexity,
+  SiRadixui,
+  SiReact,
+  SiReacthookform,
+  SiRedux,
+  SiTailwindcss,
+  SiTypescript,
+  SiVercel,
+  SiVite,
+} from "react-icons/si";
+
+interface Tech {
+  icon: IconType;
+  name: string;
+  description: string;
+}
+
+interface TechStack {
+  category: string;
+  techs: Tech[];
+}
 
 const Dashboard: React.FC = () => {
   const features = [
@@ -38,22 +65,22 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  const techStacks = [
+  const techStacks: TechStack[] = [
     {
       category: "Frontend Core Technologies",
       techs: [
         {
-          icon: SimpleIcons.siReact,
+          icon: SiReact,
           name: "React",
           description: "Building responsive and interactive user interfaces",
         },
         {
-          icon: SimpleIcons.siTypescript,
+          icon: SiTypescript,
           name: "TypeScript",
           description: "Ensuring type safety and improving code quality",
         },
         {
-          icon: SimpleIcons.siVite,
+          icon: SiVite,
           name: "Vite",
           description: "Fast build tool for improved development experience",
         },
@@ -63,7 +90,7 @@ const Dashboard: React.FC = () => {
       category: "State Management",
       techs: [
         {
-          icon: SimpleIcons.siRedux,
+          icon: SiRedux,
           name: "React Redux & Toolkit",
           description: "Official React bindings for Redux",
         },
@@ -73,22 +100,22 @@ const Dashboard: React.FC = () => {
       category: "UI & Styling",
       techs: [
         {
-          icon: SimpleIcons.siRadixui,
+          icon: SiRadixui,
           name: "Radix UI",
           description: "Accessible and customizable UI components",
         },
         {
-          icon: SimpleIcons.siFramer,
+          icon: SiFramer,
           name: "Framer Motion",
           description: "Animation library for React",
         },
         {
-          icon: SimpleIcons.siTailwindcss,
+          icon: SiTailwindcss,
           name: "Tailwind CSS",
           description: "Utility-first CSS framework",
         },
         {
-          icon: SimpleIcons.siShadcnui,
+          icon: SiRadixui,
           name: "shadcn/ui",
           description:
             "Re-usable components built with Radix UI and Tailwind CSS",
@@ -99,12 +126,12 @@ const Dashboard: React.FC = () => {
       category: "Form Handling",
       techs: [
         {
-          icon: SimpleIcons.siReacthookform,
+          icon: SiReacthookform,
           name: "React Hook Form",
           description: "Performant, flexible and extensible forms",
         },
         {
-          icon: SimpleIcons.siPyup,
+          icon: SiPerplexity,
           name: "Yup",
           description: "Schema builder for value parsing and validation",
         },
@@ -114,13 +141,13 @@ const Dashboard: React.FC = () => {
       category: "Backend & Deployment",
       techs: [
         {
-          icon: SimpleIcons.siFirebase,
+          icon: SiFirebase,
           name: "Firebase",
           description:
             "Backend-as-a-Service for authentication and data storage",
         },
         {
-          icon: SimpleIcons.siVercel,
+          icon: SiVercel,
           name: "Vercel (Serverless)",
           description: "Serverless deployment platform",
         },
@@ -130,17 +157,17 @@ const Dashboard: React.FC = () => {
       category: "Utilities & Libraries",
       techs: [
         {
-          icon: SimpleIcons.siAxios,
+          icon: SiAxios,
           name: "Axios",
           description: "Promise-based HTTP client for API requests",
         },
         {
-          icon: SimpleIcons.siCheerio,
+          icon: SiCheerio,
           name: "Cheerio",
           description: "Fast, flexible & lean implementation of core jQuery",
         },
         {
-          icon: SimpleIcons.siNpm,
+          icon: SiCheerio,
           name: "Compromise",
           description: "Natural language processing library",
         },
@@ -150,24 +177,24 @@ const Dashboard: React.FC = () => {
       category: "AI Integrations",
       techs: [
         {
-          icon: SimpleIcons.siOpenai,
+          icon: SiOpenai,
           name: "OpenAI",
           description:
             "Powerful AI models for natural language processing and generation",
         },
         {
-          icon: SimpleIcons.siAnthropic, // Using Anthropic's icon as Claude is their product
+          icon: SiAnthropic,
           name: "Claude (Anthropic)",
           description: "Advanced AI assistant for various language tasks",
         },
         {
-          icon: { type: "svg", svg: CohereIcon },
+          icon: SiOpenai,
           name: "Cohere",
           description:
             "AI platform for natural language understanding and generation",
         },
         {
-          icon: SimpleIcons.siPerplexity, // Note: Perplexity might not have an icon in SimpleIcons
+          icon: SiPerplexity,
           name: "Perplexity",
           description: "AI-powered search and discovery platform",
         },
@@ -196,6 +223,7 @@ const Dashboard: React.FC = () => {
             <CardContent className="p-6 flex flex-col flex-grow overflow-hidden">
               <ScrollArea className="flex-grow pr-4 overflow-y-auto">
                 <div className="space-y-8 pb-8">
+                  {/* About section */}
                   <section>
                     <h2 className="text-2xl font-semibold mb-4">
                       About MagicPlanner
@@ -203,13 +231,14 @@ const Dashboard: React.FC = () => {
                     <p className="text-muted-foreground">
                       MagicPlanner is an innovative AI-powered application
                       designed to streamline your job application process. By
-                      leveraging cutting-edge technologies and intelligent
-                      algorithms, we help you create compelling resumes and
-                      cover letters tailored to your target jobs, increasing
-                      your chances of landing your dream position.
+                      leveraging cutting-edge technologies, we help you create
+                      compelling resumes and cover letters tailored to your
+                      target jobs, increasing your chances of landing your dream
+                      position.
                     </p>
                   </section>
 
+                  {/* Key Features section */}
                   <section>
                     <h2 className="text-2xl font-semibold mb-4">
                       Key Features
@@ -230,16 +259,19 @@ const Dashboard: React.FC = () => {
                       ))}
                     </div>
                   </section>
+
+                  {/* Technology Stack section */}
                   <section>
                     <h2 className="text-2xl font-semibold mb-4">
                       Technology Stack
                     </h2>
                     <Tabs defaultValue={techStacks[0].category}>
-                      <TabsList className="grid w-full grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+                      <TabsList className="mb-4 flex flex-wrap">
                         {techStacks.map((stack) => (
                           <TabsTrigger
                             key={stack.category}
                             value={stack.category}
+                            className="mb-2 mr-2"
                           >
                             {stack.category}
                           </TabsTrigger>
@@ -261,16 +293,10 @@ const Dashboard: React.FC = () => {
                                     key={tech.name}
                                     className="flex items-start"
                                   >
-                                    <svg
-                                      role="img"
-                                      viewBox="0 0 24 24"
-                                      xmlns="http://www.w3.org/2000/svg"
-                                      className="w-6 h-6"
-                                      fill="currentColor"
-                                    >
-                                      <path d={tech.icon.toString()} />
-                                    </svg>
-                                    <div className="ml-4">
+                                    <div className="flex-shrink-0 w-6 h-6 mr-4">
+                                      <tech.icon />
+                                    </div>
+                                    <div>
                                       <h3 className="text-lg font-semibold">
                                         {tech.name}
                                       </h3>
