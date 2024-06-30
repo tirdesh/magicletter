@@ -9,6 +9,7 @@ export const config = {
 // Base AI Provider
 class BaseAIProvider {
   constructor(apiKey, baseURL) {
+    console.log(apiKey, baseURL);
     this.client = axios.create({
       baseURL,
       headers: {
