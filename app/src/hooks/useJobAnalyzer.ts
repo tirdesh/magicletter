@@ -17,7 +17,7 @@ export const useJobAnalyzer = () => {
       const companyInfo = await generator.identifyCompanyInfo(jobDescription);
       return { jobSummary, companyInfo };
     } catch (err) {
-      setError("Failed to analyze job description");
+      setError(`Failed to analyze job description ${err}`);
       throw err;
     } finally {
       setIsAnalyzing(false);

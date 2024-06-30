@@ -40,7 +40,7 @@ const ResumeViewPage: React.FC = () => {
           console.error("Error fetching or parsing resume:", error);
           toast({
             title: "Error",
-            description: "Failed to load or parse resume.",
+            description: `Failed to load or parse resume. Error: ${error}`,
             variant: "destructive",
           });
         } finally {

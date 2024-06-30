@@ -63,7 +63,7 @@ const ResumeAnalysis: React.FC<ResumeAnalysisProps> = ({
     if (!selectedResume) {
       toast({
         title: "Error",
-        description: "Please select a resume to analyze.",
+        description: `Please select a resume to analyze, error: ${error}`,
         variant: "destructive",
       });
       return;
@@ -83,7 +83,7 @@ const ResumeAnalysis: React.FC<ResumeAnalysisProps> = ({
       console.error("Error analyzing resume:", error);
       toast({
         title: "Error",
-        description: "Failed to analyze resume.",
+        description: `Failed to analyze resume, error: ${error}`,
         variant: "destructive",
       });
     } finally {

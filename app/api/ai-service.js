@@ -63,7 +63,7 @@ class CohereProvider extends BaseAIProvider {
       {
         model: "command",
         prompt: `${prompt}\n\nHuman: ${text}\nAI:`,
-        max_tokens: 300,
+        max_tokens: 2048,
         temperature: 0.7,
         k: 0,
         stop_sequences: [],
@@ -76,6 +76,7 @@ class CohereProvider extends BaseAIProvider {
         },
       }
     );
+    console.log(response.data);
     return response.data.generations[0].text;
   }
 }
@@ -153,7 +154,7 @@ export default async function handler(req) {
 
     const aiProvider = createAIProvider(provider, apiKey);
     const result = await aiProvider.processRequest(prompt, text);
-
+    console.log("Result:", result);
     return new Response(JSON.stringify({ result }), {
       status: 200,
       headers: { "Content-Type": "application/json" },

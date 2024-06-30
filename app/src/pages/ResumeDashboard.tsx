@@ -55,11 +55,11 @@ const ResumeDashboard: React.FC = () => {
     } catch (error) {
       console.error("Error adding resume:", error);
       setError(
-        "Failed to add resume. Please check your connection and try again."
+        `Failed to add resume. Please check your connection and try again. Error: ${error}`
       );
       toast({
         title: "Error",
-        description: "Failed to add resume",
+        description: `Failed to add resume. Error: ${error}`,
         variant: "destructive",
       });
     } finally {
@@ -77,11 +77,11 @@ const ResumeDashboard: React.FC = () => {
     } catch (error) {
       console.error("Error deleting resume:", error);
       setError(
-        "Failed to delete resume. Please check your connection and try again."
+        `Failed to delete resume. Please check your connection and try again. Error: ${error}`
       );
       toast({
         title: "Error",
-        description: "Failed to delete resume",
+        description: `Failed to delete resume. Error: ${error}`,
         variant: "destructive",
       });
     } finally {
@@ -98,11 +98,11 @@ const ResumeDashboard: React.FC = () => {
     } catch (error) {
       console.error("Error fetching resumes:", error);
       setError(
-        "Failed to fetch resumes. Please check your connection and try again."
+        `Failed to fetch resumes. Please check your connection and try again. Error: ${error}`
       );
       toast({
         title: "Error",
-        description: "Failed to fetch resumes",
+        description: `Failed to fetch resumes. Error: ${error}`,
         variant: "destructive",
       });
     } finally {
