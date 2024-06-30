@@ -265,52 +265,60 @@ const Dashboard: React.FC = () => {
                     <h2 className="text-2xl font-semibold mb-4">
                       Technology Stack
                     </h2>
-                    <Tabs defaultValue={techStacks[0].category}>
-                      <TabsList className="mb-4 flex flex-wrap">
+                    <Tabs
+                      defaultValue={techStacks[0].category}
+                      orientation="vertical"
+                      className="flex"
+                    >
+                      <ScrollArea className="h-[400px] w-[200px] mr-4">
+                        <TabsList className="flex flex-col w-full">
+                          {techStacks.map((stack) => (
+                            <TabsTrigger
+                              key={stack.category}
+                              value={stack.category}
+                              className="mb-2 justify-start"
+                            >
+                              {stack.category}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                      </ScrollArea>
+                      <div className="flex-grow">
                         {techStacks.map((stack) => (
-                          <TabsTrigger
+                          <TabsContent
                             key={stack.category}
                             value={stack.category}
-                            className="mb-2 mr-2"
                           >
-                            {stack.category}
-                          </TabsTrigger>
+                            <Card>
+                              <CardHeader>
+                                <CardTitle>{stack.category}</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="space-y-4">
+                                  {stack.techs.map((tech) => (
+                                    <div
+                                      key={tech.name}
+                                      className="flex items-start"
+                                    >
+                                      <div className="flex-shrink-0 w-6 h-6 mr-4">
+                                        <tech.icon />
+                                      </div>
+                                      <div>
+                                        <h3 className="text-lg font-semibold">
+                                          {tech.name}
+                                        </h3>
+                                        <p className="text-muted-foreground">
+                                          {tech.description}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </TabsContent>
                         ))}
-                      </TabsList>
-                      {techStacks.map((stack) => (
-                        <TabsContent
-                          key={stack.category}
-                          value={stack.category}
-                        >
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>{stack.category}</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-4">
-                                {stack.techs.map((tech) => (
-                                  <div
-                                    key={tech.name}
-                                    className="flex items-start"
-                                  >
-                                    <div className="flex-shrink-0 w-6 h-6 mr-4">
-                                      <tech.icon />
-                                    </div>
-                                    <div>
-                                      <h3 className="text-lg font-semibold">
-                                        {tech.name}
-                                      </h3>
-                                      <p className="text-muted-foreground">
-                                        {tech.description}
-                                      </p>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </TabsContent>
-                      ))}
+                      </div>
                     </Tabs>
                   </section>
                 </div>
