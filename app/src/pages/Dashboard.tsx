@@ -214,7 +214,7 @@ const Dashboard: React.FC = () => {
           <Card className="w-full max-w-4xl mx-auto shadow-md flex flex-col flex-grow">
             <CardHeader className="bg-primary/10 dark:bg-primary/20">
               <CardTitle className="text-3xl font-bold text-primary">
-                Welcome to MagicPlanner
+                Welcome to MagicLetter
               </CardTitle>
               <CardDescription>
                 Your AI-powered resume and cover letter assistant
@@ -226,10 +226,10 @@ const Dashboard: React.FC = () => {
                   {/* About section */}
                   <section>
                     <h2 className="text-2xl font-semibold mb-4">
-                      About MagicPlanner
+                      About MagicLetter
                     </h2>
                     <p className="text-muted-foreground">
-                      MagicPlanner is an innovative AI-powered application
+                      MagicLetter is an innovative AI-powered application
                       designed to streamline your job application process. By
                       leveraging cutting-edge technologies, we help you create
                       compelling resumes and cover letters tailored to your
